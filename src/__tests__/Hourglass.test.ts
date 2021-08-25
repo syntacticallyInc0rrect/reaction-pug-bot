@@ -1,11 +1,4 @@
-import {
-    Hourglass,
-    initializeHourglassForUnitTests,
-    mapPool,
-    mapsBottom,
-    mapsTop,
-    suggestedMaps
-} from "../Hourglass";
+import {Hourglass, initializeHourglassForUnitTests, mapPool, mapsBottom, mapsTop, suggestedMaps} from "../Hourglass";
 
 describe("Hourglass", () => {
     const tenMaps: string[] = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
@@ -14,44 +7,52 @@ describe("Hourglass", () => {
     const runFreshHourglass = (mp: string[]) => {
         initializeHourglassForUnitTests(mp);
         Hourglass();
-    }
+    };
 
-    //TODO: extract these three tests into... well... three tests lol
-    test("hourglass transfers 3 maps at a time, suggested maps has 3 maps, suggested maps wipes before 4th push", () => {
-        const expected = tenMaps;
-        let expectedMapsTopLength = expected.length - 3;
-        let expectedMapsBottomLength = 3;
+    describe("hourglass transfers maps back and forth", () => {
         const expectedSuggestedMapsLength = 3;
 
-        runFreshHourglass(tenMaps);
+        test("hourglass transfers 3 maps at a time", () => {
+            const expected = tenMaps;
+            const expectedMapsTopLength = expected.length - 3;
+            const expectedMapsBottomLength = 3;
 
-        const actual = mapPool;
-        let actualMapsTopLength = mapsTop.length;
-        let actualMapsBottomLength = mapsBottom.length;
-        let actualSuggestedMapsLength = suggestedMaps.length;
+            runFreshHourglass(tenMaps);
 
-        expect(actual).toEqual(expected);
-        expect(actualMapsTopLength).toEqual(expectedMapsTopLength);
-        expect(actualMapsBottomLength).toEqual(expectedMapsBottomLength);
-        expect(actualSuggestedMapsLength).toEqual(expectedSuggestedMapsLength);
+            const actual = mapPool;
+            const actualMapsTopLength = mapsTop.length;
+            const actualMapsBottomLength = mapsBottom.length;
+            const actualSuggestedMapsLength = suggestedMaps.length;
 
-        Hourglass();
+            expect(actual).toEqual(expected);
+            expect(actualMapsTopLength).toEqual(expectedMapsTopLength);
+            expect(actualMapsBottomLength).toEqual(expectedMapsBottomLength);
+            expect(actualSuggestedMapsLength).toEqual(expectedSuggestedMapsLength);
 
-        expectedMapsTopLength = expected.length - 6;
-        expectedMapsBottomLength = 6;
-        actualMapsTopLength = mapsTop.length;
-        actualMapsBottomLength = mapsBottom.length;
-        actualSuggestedMapsLength = suggestedMaps.length;
+        });
 
-        expect(actualMapsTopLength).toEqual(expectedMapsTopLength);
-        expect(actualMapsBottomLength).toEqual(expectedMapsBottomLength);
-        expect(actualSuggestedMapsLength).toEqual(expectedSuggestedMapsLength);
+        test("suggested maps always has 3 maps and wipes before 4th map is added", () => {
+            const expected = tenMaps;
+            const expectedMapsTopLength = expected.length - 6;
+            const expectedMapsBottomLength = 6;
+
+            Hourglass();
+
+            const actualMapsTopLength = mapsTop.length;
+            const actualMapsBottomLength = mapsBottom.length;
+            const actualSuggestedMapsLength = suggestedMaps.length;
+
+            expect(actualMapsTopLength).toEqual(expectedMapsTopLength);
+            expect(actualMapsBottomLength).toEqual(expectedMapsBottomLength);
+            expect(actualSuggestedMapsLength).toEqual(expectedSuggestedMapsLength);
+        });
     });
+
 
     test("hourglass throws an error when there are less than three maps in the map pool", () => {
         const errorMessage: string = "Error: Map Pool must contain at least 3 Maps!";
         expect(() => runFreshHourglass(twoMaps)).toThrowError(errorMessage);
-    })
+    });
 
     test("maps get transferred to other side if less than 3 remain", () => {
         runFreshHourglass(tenMaps);
@@ -81,6 +82,6 @@ describe("Hourglass", () => {
         Hourglass();
         expect(mapsTop.length).toEqual(7);
         expect(mapsBottom.length).toEqual(3);
-    })
+    });
 
 });
