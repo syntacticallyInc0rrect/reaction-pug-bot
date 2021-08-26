@@ -21,7 +21,7 @@ export const initializeHourglassForUnitTests = (mp: string[]) => {
 };
 
 export const Hourglass = () => {
-    if (mapPool.length < 3) throw Error("Error: Map Pool must contain at least 3 Maps!");
+    if (mapPool.length < 3) throw Error("Map Pool must contain at least 3 Maps!");
     const getRandomMap = (maps: string[]): string => {
         return maps[Math.floor(Math.random() * maps.length)];
     };

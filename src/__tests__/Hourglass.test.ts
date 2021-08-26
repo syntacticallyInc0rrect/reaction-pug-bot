@@ -1,4 +1,4 @@
-import {Hourglass, initializeHourglassForUnitTests, mapPool, mapsBottom, mapsTop, suggestedMaps} from "../src/Hourglass";
+import {Hourglass, initializeHourglassForUnitTests, mapPool, mapsBottom, mapsTop, suggestedMaps} from "../Hourglass";
 
 describe("Hourglass", () => {
     const tenMaps: string[] = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
@@ -50,7 +50,7 @@ describe("Hourglass", () => {
 
 
     test("hourglass throws an error when there are less than three maps in the map pool", () => {
-        const errorMessage: string = "Error: Map Pool must contain at least 3 Maps!";
+        const errorMessage: string = "Map Pool must contain at least 3 Maps!";
         expect(() => runFreshHourglass(twoMaps)).toThrowError(errorMessage);
     });
 

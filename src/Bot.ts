@@ -5,7 +5,7 @@ import {Hourglass} from "./Hourglass";
 import {Queue, queuedPlayers} from "./Queue";
 import {Teams} from "./Teams";
 
-export const client = new Client();
+export const client: Client = new Client();
 
 client.login(botToken).then(() => {
     setInterval(() => !!queuedPlayers && Alerts(), timeToRespond);

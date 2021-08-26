@@ -1,4 +1,4 @@
-import {Channel, MessageEmbed, MessageReaction, PartialUser, TextChannel, User} from "discord.js";
+import {Channel, Client, MessageEmbed, MessageReaction, PartialUser, TextChannel, User} from "discord.js";
 import {
     BotAction,
     BotActionOptions,
@@ -38,10 +38,16 @@ type QueueEmbedProps = {
     inQueueField: EmbedAddField
 }
 
-export const getTextChannel = (channel: Channel | undefined): TextChannel => {
+export const getChannel = (): Channel => {
+    const channel = client.channels.cache.get(channelId);
+    if (!channel) throw Error("Your Client does not have any Channels. This is a problem.");
+    return channel;
+}
+
+export const getTextChannel = (channel: Channel): TextChannel => {
     const isChannelATextChannel = channel instanceof TextChannel;
     if (!isChannelATextChannel) throw Error(
-        "Error: Your channel is not a Text Channel. Please correct your Channel ID"
+        "Your channel is not a Text Channel. Please correct your Channel ID"
     );
     return <TextChannel>channel;
 };
@@ -100,9 +106,8 @@ const buildQueueEmbed = (qec: QueueEmbedProps): MessageEmbed => {
         .addField(qec.inQueueField.name, qec.mapPoolField.value, qec.mapPoolField.inline);
 }
 
-const sendInitialEmbed = (props: QueueEmbedProps) => {
-    const channel: Channel | undefined = client.channels.cache.get(channelId);
-    const textChannel: TextChannel = getTextChannel(channel);
+export const sendInitialEmbed = (props: QueueEmbedProps) => {
+    const textChannel: TextChannel = getTextChannel(getChannel());
 
     textChannel.send(buildQueueEmbed(props)).then(m => {
         queueMsgId = m.id;
@@ -114,8 +119,7 @@ const updateQueueEmbed = (props: QueueEmbedProps, reaction?: MessageReaction, re
     if (reaction) {
         reaction.message.edit(buildQueueEmbed(props)).then();
     } else if (removedUser) {
-        const channel: Channel | undefined = client.channels.cache.get(channelId);
-        const textChannel: TextChannel = getTextChannel(channel);
+        const textChannel: TextChannel = getTextChannel(getChannel());
         const queueMsg = textChannel.messages.cache.get(queueMsgId);
         const queueReactions = queueMsg && queueMsg.reactions.cache.get(queueEmojiIdNum);
 
@@ -139,7 +143,7 @@ const updateQueueEmbed = (props: QueueEmbedProps, reaction?: MessageReaction, re
 export let queueMsgId: string;
 export let queuedPlayers: QueuedPlayer[];
 const getPlayerCount = (): string => queuedPlayers ? queuedPlayers.length.toString() : '0';
-const getPlayersValue = (): string => queuedPlayers.length > 0 ?
+const getPlayersValue = (): string => queuedPlayers && queuedPlayers.length > 0 ?
     queuedPlayers.map(p => p.user).toString() :
     defaultValueForEmptyTeam;
 
@@ -169,7 +173,7 @@ export const Queue = (
             handleReactionRemove(reaction, user);
             break;
         case BotActionOptions.update:
-            updateQueueEmbed(queueEmbedProps, undefined, removedUser)
+            updateQueueEmbed(queueEmbedProps, undefined, removedUser);
             break;
         default:
             break;
