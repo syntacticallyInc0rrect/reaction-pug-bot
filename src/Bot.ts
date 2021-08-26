@@ -1,9 +1,9 @@
 import {Client, MessageReaction, PartialUser, User} from "discord.js";
-
-import {Hourglass} from "./Hourglass";
-import {Queue, queuedPlayers} from "./Queue";
 import {Alerts} from "./Alerts";
 import {BotActionOptions, botName, botToken, timeToRespond} from "./Api";
+import {Hourglass} from "./Hourglass";
+import {Queue, queuedPlayers} from "./Queue";
+import {Teams} from "./Teams";
 
 export const client = new Client();
 
@@ -29,7 +29,7 @@ client.on('messageReactionAdd', (
                 Queue(BotActionOptions.reactionAdd, reaction, user);
                 break;
             case "B":
-                //TODO: Teams(BotActionOptions.reactionAdd), reaction, user);
+                Teams(BotActionOptions.reactionAdd, reaction, user);
                 break;
             case "C":
                 //TODO: Maps(BotActionOptions.reactionAdd, reaction, user);

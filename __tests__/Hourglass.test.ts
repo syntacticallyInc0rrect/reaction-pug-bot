@@ -1,4 +1,4 @@
-import {Hourglass, initializeHourglassForUnitTests, mapPool, mapsBottom, mapsTop, suggestedMaps} from "../Hourglass";
+import {Hourglass, initializeHourglassForUnitTests, mapPool, mapsBottom, mapsTop, suggestedMaps} from "../src/Hourglass";
 
 describe("Hourglass", () => {
     const tenMaps: string[] = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];

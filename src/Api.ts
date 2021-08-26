@@ -80,18 +80,25 @@ export const channelId: string = getChannelId();
 // export const channelFullPath = `https://discord.com/channels/${discordId}/${channelId}`
 export const defaultValueForEmptyTeam: string = getDefaultValueForEmptyTeam();
 // export const logo = process.env.LOGO;
-export const queueEmojiName: string | undefined = "ew_mouse"; /*process.env.QUEUE_EMOJI_NAME*/
-// export const queueEmojiId: string | undefined = process.env.QUEUE_EMOJI_ID;
-export const queueEmojiIdNum: string = "791235695619473449"; /*process.env.QUEUE_EMOJI_ID_NUM*/
+//TODO: create getters for the following 3
+export const queueEmojiName: string = "ew_mouse"; /*process.env.QUEUE_EMOJI_NAME;*/
+export const queueEmojiId: string = "<:ew_mouse:791235695619473449>"; /*process.env.QUEUE_EMOJI_ID;*/
+export const queueEmojiIdNum: string = "791235695619473449"; /*process.env.QUEUE_EMOJI_ID_NUM;*/
 //redTeamEmojiName
 //redTeamEmojiId
 //redTeamEmojiIdNum
 //blueTeamEmojiName
 //blueTeamEmojiId
 //bueTeamEmojiIdNum
-//embedColor TODO: make colors for each embed but give option for all to inherit this color
+//TODO: make colors for each embed but give option for all to inherit from default
+export const defaultEmbedColor: string = "#ff0000" /*process.env.DEFAULT_EMBED_COLOR*/
+export const queueEmbedColor: string | undefined = undefined /*process.env.QUEUE_EMBED_COLOR*/
+//TODO: make thumbnailUrl for each embed but give option for all to inherit from default
+export const defaultEmbedThumbnailUrl: string = "https://www.example.com"; /*process.env.DEFAULT_EMBED_THUMBNAIL_URL;*/
+export const queueEmbedThumbnailUrl: string | undefined = undefined; /*process.env.QUEUE_EMBED_THUMBNAIL_URL;*/
+export const queueEmbedTitle: string = "Reaction Based PUG Bot"; /*process.env.QUEUE_EMBED_TITLE;*/
 export const matchSize: number = 10; /*parseInt(process.env.MATCH_SIZE)*/
-// export const teamSize = matchSize / 2;
+export const teamSize = matchSize / 2;
 //admins
 //resetTeamsEmojiName
 //resetTeamsEmojiId
