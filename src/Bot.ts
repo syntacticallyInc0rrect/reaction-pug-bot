@@ -41,7 +41,11 @@ client.on('messageReactionAdd', (
     user: User | PartialUser
 ) => {
     const isUserTheBot = user.username == botName;
-    const isMessageFromBot = reaction.message.id === queueMsgId;
+    const isMessageFromBot = reaction.message.id === queueMsgId ||
+        reaction.message.id === tmMsgId ||
+        reaction.message.id === mapMsgId ||
+        reaction.message.id === finalMsgId;
+
     if (!isUserTheBot && isMessageFromBot) {
         switch (reaction.message.id) {
             case queueMsgId:
