@@ -1,7 +1,8 @@
 import {MessageEmbed, MessageReaction, PartialUser, StringResolvable, User} from "discord.js";
 import {
     admins,
-    blueTeamEmojiId, blueTeamEmojiIdNum,
+    blueTeamEmojiId,
+    blueTeamEmojiIdNum,
     blueTeamEmojiName,
     BotAction,
     BotActionOptions,
@@ -14,7 +15,8 @@ import {
     directMessageThumbnailUrl,
     directMessageTitle,
     matchSize,
-    redTeamEmojiId, redTeamEmojiIdNum,
+    redTeamEmojiId,
+    redTeamEmojiIdNum,
     redTeamEmojiName,
     resetPugEmojiName,
     resetTeamsEmojiName,
@@ -80,15 +82,17 @@ const getTeamsEmbedProps = (): TeamsEmbedProps => {
     };
 };
 
-const directMessageEmbedProps: DirectMessageEmbedProps = {
-    color: directMessageEmbedColor ? directMessageEmbedColor : defaultEmbedColor,
-    title: directMessageTitle,
-    timestamp: new Date(),
-    thumbnail: directMessageThumbnailUrl ? directMessageThumbnailUrl : defaultEmbedThumbnailUrl,
-    field: {
-        name: directMessageName,
-        value: `Click [here](${channelFullPath}) to be taken back to the PUG Bot :)`,
-        inline: false
+const getDirectMessageEmbedProps = (): DirectMessageEmbedProps => {
+    return {
+        color: directMessageEmbedColor ? directMessageEmbedColor : defaultEmbedColor,
+        title: directMessageTitle,
+        timestamp: new Date(),
+        thumbnail: directMessageThumbnailUrl ? directMessageThumbnailUrl : defaultEmbedThumbnailUrl,
+        field: {
+            name: directMessageName,
+            value: `Click [here](${channelFullPath}) to be taken back to the PUG Bot :)`,
+            inline: false
+        }
     }
 };
 
@@ -120,7 +124,7 @@ const sendInitialTeamsEmbed = (reaction: MessageReaction, props: TeamsEmbedProps
             m.react(redTeamEmojiId);
             m.react(blueTeamEmojiId);
         });
-        sendDirectMessageToQueuedPlayers(directMessageEmbedProps);
+        sendDirectMessageToQueuedPlayers(getDirectMessageEmbedProps());
     })
 
 };

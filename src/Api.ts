@@ -110,6 +110,7 @@ export const queueEmbedThumbnailUrl: string | undefined = undefined; /*process.e
 export const teamsEmbedThumbnailUrl: string | undefined = undefined; /*process.env.TEAMS_EMBED_THUMBNAIL_URL;*/
 export const mapsEmbedThumbnailUrl: string | undefined = undefined; /*process.env.MAPS_EMBED_THUMBNAIL_URL;*/
 export const finalEmbedThumbnailUrl: string | undefined = undefined; /*process.env.FINAL_EMBED_THUMBNAIL_URL;*/
+export const alertEmbedThumbnailUrl: string | undefined = undefined; /*process.env.FINAL_EMBED_THUMBNAIL_URL;*/
 export const directMessageThumbnailUrl: string | undefined = undefined; /*process.env.TEAMS_EMBED_THUMBNAIL_URL;*/
 export const queueEmbedTitle: string = "Reaction Based PUG Bot"; /*process.env.QUEUE_EMBED_TITLE;*/
 export const teamsEmbedTitle: string = "Choose Your Side"; /*process.env.TEAMS_EMBED_TITLE;*/
