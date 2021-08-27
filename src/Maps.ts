@@ -4,12 +4,11 @@ import {
     BotActionOptions,
     defaultEmbedColor,
     defaultEmbedThumbnailUrl,
+    mapsEmbedColor,
+    mapsEmbedThumbnailUrl,
     optionOneEmojiName,
     optionThreeEmojiName,
     optionTwoEmojiName,
-    teamsEmbedColor,
-    teamsEmbedThumbnailUrl,
-    teamsEmbedTitle,
     timeToBanMap
 } from "./Api";
 import {suggestedMaps} from "./Hourglass";
@@ -156,9 +155,9 @@ const getMapsEmbedProps = (secondsElapsed: number): MapsEmbedProps => {
     const secondsRemaining: number = timeToBanMap - secondsElapsed;
     const displaySecondsRemaining: string = secondsRemaining > 1 ? `${secondsRemaining}s` : `${secondsRemaining}`;
     return {
-        color: teamsEmbedColor ? teamsEmbedColor : defaultEmbedColor,
-        title: teamsEmbedTitle,
-        thumbnail: teamsEmbedThumbnailUrl ? teamsEmbedThumbnailUrl : defaultEmbedThumbnailUrl,
+        color: mapsEmbedColor ? mapsEmbedColor : defaultEmbedColor,
+        title: "Vote Which Map to Ban",
+        thumbnail: mapsEmbedThumbnailUrl ? mapsEmbedThumbnailUrl : defaultEmbedThumbnailUrl,
         optionOneField: {
             name: `${optionOneEmojiName} ${suggestedMaps[0]}`,
             value: `${redTeam.optionOne.count}/${blueTeam.optionOne.count}`,

@@ -94,11 +94,15 @@ export const blueTeamEmojiIdNum: string = "818597711783133194"; /*process.env.BL
 export const defaultEmbedColor: string = "#ff0000" /*process.env.DEFAULT_EMBED_COLOR*/
 export const queueEmbedColor: string | undefined = undefined /*process.env.QUEUE_EMBED_COLOR*/
 export const teamsEmbedColor: string | undefined = undefined /*process.env.TEAMS_EMBED_COLOR*/
+export const mapsEmbedColor: string | undefined = undefined /*process.env.MAPS_EMBED_COLOR*/
+export const finalEmbedColor: string | undefined = undefined /*process.env.FINAL_EMBED_COLOR*/
 export const directMessageEmbedColor: string | undefined = undefined /*process.env.DIRECT_MESSAGE_EMBED_COLOR*/
 //TODO: make thumbnailUrl for each embed but give option for all to inherit from default
 export const defaultEmbedThumbnailUrl: string = "https://www.example.com"; /*process.env.DEFAULT_EMBED_THUMBNAIL_URL;*/
 export const queueEmbedThumbnailUrl: string | undefined = undefined; /*process.env.QUEUE_EMBED_THUMBNAIL_URL;*/
 export const teamsEmbedThumbnailUrl: string | undefined = undefined; /*process.env.TEAMS_EMBED_THUMBNAIL_URL;*/
+export const mapsEmbedThumbnailUrl: string | undefined = undefined; /*process.env.MAPS_EMBED_THUMBNAIL_URL;*/
+export const finalEmbedThumbnailUrl: string | undefined = undefined; /*process.env.FINAL_EMBED_THUMBNAIL_URL;*/
 export const directMessageThumbnailUrl: string | undefined = undefined; /*process.env.TEAMS_EMBED_THUMBNAIL_URL;*/
 export const queueEmbedTitle: string = "Reaction Based PUG Bot"; /*process.env.QUEUE_EMBED_TITLE;*/
 export const teamsEmbedTitle: string = "Choose Your Side"; /*process.env.TEAMS_EMBED_TITLE;*/
