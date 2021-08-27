@@ -193,7 +193,7 @@ const handleReactionAdd = (reaction: MessageReaction, user: User | PartialUser) 
             );
         }
         if (checkIfTeamsAreFull()) {
-            Maps(BotActionOptions.initialize, reaction, user)
+            reaction.message.delete().then(() => Maps(BotActionOptions.initialize, reaction, user));
         }
     };
 
