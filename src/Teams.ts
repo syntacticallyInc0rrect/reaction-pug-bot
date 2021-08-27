@@ -98,21 +98,8 @@ const buildTeamsEmbed = (props: TeamsEmbedProps): MessageEmbed => {
         .setColor(props.color)
         .setTitle(props.title)
         .setThumbnail(props.thumbnail)
-        .addField(
-            props.redTeamField.name,
-            props.redTeamField.value,
-            props.redTeamField.inline
-        )
-        .addField(
-            props.blueTeamField.name,
-            props.blueTeamField.value,
-            props.blueTeamField.inline
-        )
-        .addField(
-            props.unassignedPlayersField.name,
-            props.unassignedPlayersField.value,
-            props.unassignedPlayersField.inline
-        );
+        .addFields(props.redTeamField, props.blueTeamField, props.unassignedPlayersField)
+
 };
 
 const sendDirectMessageToQueuedPlayers = (props: DirectMessageEmbedProps) => {

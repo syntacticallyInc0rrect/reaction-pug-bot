@@ -107,20 +107,21 @@ export const directMessageName: string = "Your 5v5 Sandstorm Game is Ready!" /*p
 export const matchSize: number = 10; /*parseInt(process.env.MATCH_SIZE)*/
 export const teamSize: number = matchSize / 2;
 export const admins: string[] | undefined = ["first", "second"]/*process.env.ADMINS.split(',');*/
-export const resetTeamsEmojiName: string = "♻";/*process.env.RESET_TEAMS_EMOJI_NAME*/
+export const resetTeamsEmojiName: string = "♻";/*process.env.RESET_TEAMS_EMOJI_NAME;*/
 //resetTeamsEmojiId
 //resetTeamsEmojiIdNum
-export const resetPugEmojiName: string = "⛔";/*process.env.RESET_PUG_EMOJI_NAME*/
+export const resetPugEmojiName: string = "⛔";/*process.env.RESET_PUG_EMOJI_NAME;*/
 //resetPugEmojiId
 //resetPugEmojiIdNum
-//optionOneEmojiName
+export const optionOneEmojiName: string = "";/*process.env.OPTION.ONE.EMOJI.NAME;*/
 //optionOneEmojiId
 //optionOneEmojiIdNum
-//optionTwoEmojiName
+export const optionTwoEmojiName: string = "";/*process.env.OPTION.ONE.EMOJI.NAME;*/
 //optionTwoEmojiId
 //optionTwoEmojiIdNum
-//optionThreeEmojiName
+export const optionThreeEmojiName: string = "";/*process.env.OPTION.ONE.EMOJI.NAME;*/
 //optionThreeEmojiId
 //optionThreeEmojiIdNum
+export const timeToBanMap: number = 30;/*process.env.TIME_TO_BAN_MAP;*/
 export const timeToAlert: Date = getTimeToAlert();
 export const timeToRespond: number = getTimeToRespond();

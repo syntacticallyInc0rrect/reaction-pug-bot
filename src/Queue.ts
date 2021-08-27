@@ -87,13 +87,12 @@ const handleReactionRemove = (reaction?: MessageReaction, user?: User | PartialU
     }
 };
 
-const buildQueueEmbed = (qec: QueueEmbedProps): MessageEmbed => {
+const buildQueueEmbed = (props: QueueEmbedProps): MessageEmbed => {
     return new MessageEmbed()
-        .setColor(qec.color)
-        .setTitle(qec.title)
-        .setThumbnail(qec.thumbnail)
-        .addField(qec.mapPoolField.name, qec.mapPoolField.value, qec.mapPoolField.inline)
-        .addField(qec.inQueueField.name, qec.inQueueField.value, qec.inQueueField.inline);
+        .setColor(props.color)
+        .setTitle(props.title)
+        .setThumbnail(props.thumbnail)
+        .addFields(props.mapPoolField, props.inQueueField);
 }
 
 const sendInitialEmbed = (props: QueueEmbedProps) => {
