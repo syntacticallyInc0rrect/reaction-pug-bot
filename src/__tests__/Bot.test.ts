@@ -1,16 +1,14 @@
-import {getChannel, getTextChannel, Queue} from "../Queue";
+import {getChannel, getTextChannel} from "../Bot";
 import {VoiceChannel} from "discord.js";
 
-describe("Queue", () => {
+describe("Bot", () => {
+    //TODO: close open handles at end of tests so jest can exit properly
+
     const voiceChannelMock = () => (({} as unknown) as VoiceChannel);
     const voiceChannel: VoiceChannel = voiceChannelMock();
 
     beforeEach(() => jest.clearAllMocks());
     afterEach(() => jest.clearAllTimers());
-
-    test("send initial embed is called when queue is called with initialize action", () => {
-        //TODO
-    });
 
     test("get channel throws an error when no channel is found in the client", () => {
         expect(() => {
