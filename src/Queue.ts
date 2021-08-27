@@ -1,8 +1,7 @@
-import {Channel, Client, MessageEmbed, MessageReaction, PartialUser, TextChannel, User} from "discord.js";
+import {MessageEmbed, MessageReaction, PartialUser, StringResolvable, User} from "discord.js";
 import {
     BotAction,
     BotActionOptions,
-    channelId,
     defaultEmbedColor,
     defaultEmbedThumbnailUrl,
     defaultValueForEmptyTeam,
@@ -15,7 +14,7 @@ import {
     queueEmojiIdNum,
     queueEmojiName
 } from "./Api";
-import {client} from "./Bot";
+import {textChannel} from "./Bot";
 import {Teams} from "./Teams";
 
 export type QueuedPlayer = {
@@ -24,42 +23,32 @@ export type QueuedPlayer = {
     warned: boolean
 };
 
-export type EmbedAddField = {
-    name: String,
-    value: String,
+export type EmbedField = {
+    name: StringResolvable,
+    value: StringResolvable,
     inline: boolean
 };
 
 type QueueEmbedProps = {
-    color: string,
-    title: string,
-    thumbnail: string,
-    mapPoolField: EmbedAddField,
-    inQueueField: EmbedAddField
+    color: StringResolvable,
+    title: StringResolvable,
+    thumbnail: StringResolvable,
+    mapPoolField: EmbedField,
+    inQueueField: EmbedField
 }
 
-export const getChannel = (): Channel => {
-    const channel = client.channels.cache.get(channelId);
-    if (!channel) throw Error("Your Client does not have any Channels. This is a problem.");
-    return channel;
-}
-
-export const getTextChannel = (channel: Channel): TextChannel => {
-    const isChannelATextChannel = channel instanceof TextChannel;
-    if (!isChannelATextChannel) throw Error(
-        "Your channel is not a Text Channel. Please correct your Channel ID"
-    );
-    return <TextChannel>channel;
-};
-
-const removeReaction = (reaction: MessageReaction, user: User | PartialUser) => {
+export const removeReaction = (reaction: MessageReaction, user: User | PartialUser) => {
     const reactionName: string = reaction.emoji.name;
     const reactionId: string = reaction.emoji.id ? reaction.emoji.id : "";
     const getUnwantedReaction = (): MessageReaction => {
         const foundWithReactionName = reaction.message.reactions.cache.get(reactionName);
         const foundWithReactionId = reaction.message.reactions.cache.get(reactionId);
-        if (foundWithReactionName) { return foundWithReactionName; }
-        if (foundWithReactionId) { return foundWithReactionId; }
+        if (foundWithReactionName) {
+            return foundWithReactionName;
+        }
+        if (foundWithReactionId) {
+            return foundWithReactionId;
+        }
         throw Error("The reaction that is attempting to be removed does not exist.");
     }
     getUnwantedReaction().users.remove(user.id).then(
@@ -67,17 +56,18 @@ const removeReaction = (reaction: MessageReaction, user: User | PartialUser) => 
     );
 }
 
-export const handleReactionAdd = (reaction?: MessageReaction, user?: User | PartialUser): void => {
+const handleReactionAdd = (reaction?: MessageReaction, user?: User | PartialUser): void => {
     if (!user || !reaction) {
         throw Error("Somehow a handle reaction add was called without a reaction or a user.\n" +
             "Something is seriously wrong here.");
     }
+
     if (reaction.emoji.name === queueEmojiName) {
         const userAlreadyExistsInQueue = !!queuedPlayers && !!queuedPlayers.find(qp => qp.user === user);
         if (!userAlreadyExistsInQueue) {
             queuedPlayers.push({user: user, timestamp: new Date(), warned: false});
             if (queuedPlayers.length < matchSize) {
-                updateQueueEmbed(queueEmbedProps, reaction);
+                updateQueueEmbed(getQueueEmbedProps(), reaction);
             } else {
                 Teams(BotActionOptions.initialize, reaction, user, [...queuedPlayers.map(p => p.user)]);
                 queuedPlayers = [];
@@ -93,7 +83,7 @@ const handleReactionRemove = (reaction?: MessageReaction, user?: User | PartialU
     if (reaction.emoji.name === queueEmojiName) {
         const userIsQueued = queuedPlayers.length > 0 && queuedPlayers.find(p => p.user === user);
         userIsQueued && queuedPlayers.splice(queuedPlayers.map(p => p.user).indexOf(user), 1);
-        updateQueueEmbed(queueEmbedProps, reaction);
+        updateQueueEmbed(getQueueEmbedProps(), reaction);
     }
 };
 
@@ -103,12 +93,10 @@ const buildQueueEmbed = (qec: QueueEmbedProps): MessageEmbed => {
         .setTitle(qec.title)
         .setThumbnail(qec.thumbnail)
         .addField(qec.mapPoolField.name, qec.mapPoolField.value, qec.mapPoolField.inline)
-        .addField(qec.inQueueField.name, qec.mapPoolField.value, qec.mapPoolField.inline);
+        .addField(qec.inQueueField.name, qec.inQueueField.value, qec.inQueueField.inline);
 }
 
-export const sendInitialEmbed = (props: QueueEmbedProps) => {
-    const textChannel: TextChannel = getTextChannel(getChannel());
-
+const sendInitialEmbed = (props: QueueEmbedProps) => {
     textChannel.send(buildQueueEmbed(props)).then(m => {
         queueMsgId = m.id;
         m.react(queueEmojiId).then();
@@ -119,7 +107,6 @@ const updateQueueEmbed = (props: QueueEmbedProps, reaction?: MessageReaction, re
     if (reaction) {
         reaction.message.edit(buildQueueEmbed(props)).then();
     } else if (removedUser) {
-        const textChannel: TextChannel = getTextChannel(getChannel());
         const queueMsg = textChannel.messages.cache.get(queueMsgId);
         const queueReactions = queueMsg && queueMsg.reactions.cache.get(queueEmojiIdNum);
 
@@ -141,18 +128,20 @@ const updateQueueEmbed = (props: QueueEmbedProps, reaction?: MessageReaction, re
 }
 
 export let queueMsgId: string;
-export let queuedPlayers: QueuedPlayer[];
-const getPlayerCount = (): string => queuedPlayers ? queuedPlayers.length.toString() : '0';
-const getPlayersValue = (): string => queuedPlayers && queuedPlayers.length > 0 ?
-    queuedPlayers.map(p => p.user).toString() :
+export let queuedPlayers: QueuedPlayer[] = [];
+const getPlayerCount = (): string => queuedPlayers ? queuedPlayers.length.toString() : "0";
+const getPlayersValue = (): StringResolvable => queuedPlayers && queuedPlayers.length > 0 ?
+    queuedPlayers.map(p => p.user) :
     defaultValueForEmptyTeam;
 
-const queueEmbedProps: QueueEmbedProps = {
-    color: queueEmbedColor ? queueEmbedColor : defaultEmbedColor,
-    title: queueEmbedTitle,
-    thumbnail: queueEmbedThumbnailUrl ? queueEmbedThumbnailUrl : defaultEmbedThumbnailUrl,
-    mapPoolField: {name: "Map Pool", value: mapPool.toString(), inline: true},
-    inQueueField: {name: `In Queue - ${getPlayerCount()}/${matchSize}`, value: getPlayersValue(), inline: false}
+const getQueueEmbedProps = (): QueueEmbedProps => {
+    return {
+        color: queueEmbedColor ? queueEmbedColor : defaultEmbedColor,
+        title: queueEmbedTitle,
+        thumbnail: queueEmbedThumbnailUrl ? queueEmbedThumbnailUrl : defaultEmbedThumbnailUrl,
+        mapPoolField: {name: "Map Pool", value: mapPool, inline: true},
+        inQueueField: {name: `In Queue - ${getPlayerCount()}/${matchSize}`, value: getPlayersValue(), inline: false}
+    };
 };
 
 export const Queue = (
@@ -164,7 +153,7 @@ export const Queue = (
     switch (action) {
         case BotActionOptions.initialize:
             queuedPlayers = [];
-            sendInitialEmbed(queueEmbedProps);
+            sendInitialEmbed(getQueueEmbedProps());
             break;
         case BotActionOptions.reactionAdd:
             handleReactionAdd(reaction, user);
@@ -173,7 +162,7 @@ export const Queue = (
             handleReactionRemove(reaction, user);
             break;
         case BotActionOptions.update:
-            updateQueueEmbed(queueEmbedProps, undefined, removedUser);
+            updateQueueEmbed(getQueueEmbedProps(), undefined, removedUser);
             break;
         default:
             break;
