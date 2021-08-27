@@ -125,13 +125,13 @@ export const resetTeamsEmojiName: string = "♻";/*process.env.RESET_TEAMS_EMOJI
 export const resetPugEmojiName: string = "⛔";/*process.env.RESET_PUG_EMOJI_NAME;*/
 //resetPugEmojiId
 //resetPugEmojiIdNum
-export const optionOneEmojiName: string = "";/*process.env.OPTION.ONE.EMOJI.NAME;*/
+export const optionOneEmojiName: string = "🟥";/*process.env.OPTION.ONE.EMOJI.NAME;*/
 //optionOneEmojiId
 //optionOneEmojiIdNum
-export const optionTwoEmojiName: string = "";/*process.env.OPTION.ONE.EMOJI.NAME;*/
+export const optionTwoEmojiName: string = "⬜";/*process.env.OPTION.ONE.EMOJI.NAME;*/
 //optionTwoEmojiId
 //optionTwoEmojiIdNum
-export const optionThreeEmojiName: string = "";/*process.env.OPTION.ONE.EMOJI.NAME;*/
+export const optionThreeEmojiName: string = "🟦";/*process.env.OPTION.ONE.EMOJI.NAME;*/
 //optionThreeEmojiId
 //optionThreeEmojiIdNum
 export const timeToBanMap: number = 30;/*process.env.TIME_TO_BAN_MAP;*/

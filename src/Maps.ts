@@ -127,15 +127,16 @@ const getMapToBePlayed = (redBanOption: BanOption, blueBanOption: BanOption): st
 
 };
 
+let i = 1;
+
 const countdownTimer = () => {
-    let i = 0;
     setTimeout(() => {
-        i++
         updateMaps(mapMsgId, i)
         if (i < timeToBanMap) {
-            countdownTimer();
+            countdownTimer()
+            i++
         } else {
-            i = 0;
+            i = 1;
             mapToBePlayed = getMapToBePlayed(redTeam.getHighestVotedOption(), blueTeam.getHighestVotedOption(true))
             Finalize(
                 BotActionOptions.initialize,
@@ -170,12 +171,12 @@ const getMapsEmbedProps = (secondsElapsed: number): MapsEmbedProps => {
             inline: true
         },
         optionTwoField: {
-            name: `${optionTwoEmojiName} ${suggestedMaps[0]}`,
+            name: `${optionTwoEmojiName} ${suggestedMaps[1]}`,
             value: `${redTeam.optionTwo.count}/${blueTeam.optionTwo.count}`,
             inline: true
         },
         optionThreeField: {
-            name: `${optionThreeEmojiName} ${suggestedMaps[0]}`,
+            name: `${optionThreeEmojiName} ${suggestedMaps[2]}`,
             value: `${redTeam.optionThree.count}/${blueTeam.optionThree.count}`,
             inline: true
         },
@@ -204,7 +205,12 @@ const updateMaps = (msgId: string, secondsElapsed: number) => {
     if (msgId !== "") {
         getMessage().edit(buildMapsEmbed(getMapsEmbedProps(secondsElapsed))).then(m => mapMsgId = m.id);
     } else {
-        textChannel.send(buildMapsEmbed(getMapsEmbedProps(secondsElapsed))).then(m => mapMsgId = m.id);
+        textChannel.send(buildMapsEmbed(getMapsEmbedProps(secondsElapsed))).then(m => {
+            mapMsgId = m.id;
+            m.react(optionOneEmojiName);
+            m.react(optionTwoEmojiName);
+            m.react(optionThreeEmojiName).then(() => countdownTimer());
+        });
     }
 };
 
@@ -332,7 +338,6 @@ export const Maps = (action: BotAction, reaction: MessageReaction, user: User | 
         case BotActionOptions.initialize:
             resetMapBanVoteOptions();
             updateMaps(mapMsgId, 0);
-            countdownTimer();
             break;
         case BotActionOptions.reactionAdd:
             handleReactionAdd(reaction, user);
