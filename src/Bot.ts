@@ -57,7 +57,7 @@ client.on('messageReactionAdd', (
                 Finalize(BotActionOptions.reactionAdd, reaction, user);
                 break;
             default:
-                break; TODO*/
+                break; */
         }
     }
 });
