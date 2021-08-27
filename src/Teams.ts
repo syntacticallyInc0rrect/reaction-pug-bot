@@ -32,8 +32,8 @@ import {Maps} from "./Maps";
 
 export let tmMsgId: string;
 export let unassignedPlayers: (User | PartialUser)[] = [];
-export let redTeamPlayers: (User | PartialUser)[];
-export let blueTeamPlayers: (User | PartialUser)[];
+export let redTeamPlayers: (User | PartialUser)[] = [];
+export let blueTeamPlayers: (User | PartialUser)[] = [];
 
 type TeamsEmbedProps = {
     author: StringResolvable,
@@ -70,12 +70,12 @@ const getTeamsEmbedProps = (): TeamsEmbedProps => {
         thumbnail: teamsEmbedThumbnailUrl ? teamsEmbedThumbnailUrl : defaultEmbedThumbnailUrl,
         redTeamField: {
             name: "Map Pool",
-            value: getRedTeamPlayers() ? getRedTeamPlayers() : defaultValueForEmptyTeam,
+            value: getRedTeamPlayers().length > 0 ? getRedTeamPlayers() : defaultValueForEmptyTeam,
             inline: true
         },
         blueTeamField: {
             name: "In Queue",
-            value: getBlueTeamPlayers() ? getBlueTeamPlayers() : defaultValueForEmptyTeam,
+            value: getBlueTeamPlayers().length > 0 ? getBlueTeamPlayers() : defaultValueForEmptyTeam,
             inline: true
         },
         unassignedPlayersField: {name: "Unassigned Players", value: getUnassignedPlayers(), inline: false}
@@ -144,7 +144,7 @@ const resetTeams = (reaction: MessageReaction) => {
     reaction.message.reactions.removeAll().then(() => updateTeams(reaction, true));
 };
 
-const resetPug = (reaction: MessageReaction) => {
+const resetPug = () => {
     unassignedPlayers = [];
     wipeTeams();
     queuedPlayers.splice(0, queuedPlayers.length);
@@ -180,10 +180,15 @@ const handleReactionAdd = (reaction: MessageReaction, user: User | PartialUser) 
         theirTeamPlayers: (User | PartialUser)[],
         myTeamEmojiIdNum: string
     ) => {
+
         if (playerIsQueued && !theirTeamPlayers.find(u => u === user) && myTeamPlayers.length < teamSize) {
             myTeamPlayers === redTeamPlayers ? redTeamPlayers.push(user) : blueTeamPlayers.push(user);
             unassignedPlayers.splice(unassignedPlayers.indexOf(user), 1);
-            updateTeams(reaction, false);
+            if (checkIfTeamsAreFull()) {
+                reaction.message.delete().then(() => Maps(BotActionOptions.initialize, reaction, user));
+            } else {
+                updateTeams(reaction, false);
+            }
         } else {
             const getReaction = (reaction: MessageReaction, myTeamEmojiId: string) => {
                 const fetchedReaction = reaction.message.reactions.cache.get(myTeamEmojiId);
@@ -195,9 +200,6 @@ const handleReactionAdd = (reaction: MessageReaction, user: User | PartialUser) 
             getReaction(reaction, myTeamEmojiIdNum).users.remove(user.id).then(
                 () => console.log(`${user.username}'s reaction was removed at ${Date.now()}`)
             );
-        }
-        if (checkIfTeamsAreFull()) {
-            reaction.message.delete().then(() => Maps(BotActionOptions.initialize, reaction, user));
         }
     };
 
@@ -213,7 +215,7 @@ const handleReactionAdd = (reaction: MessageReaction, user: User | PartialUser) 
                 resetTeams(reaction);
                 break;
             case resetPugEmojiName:
-                resetPug(reaction);
+                resetPug();
                 break;
             default:
                 removeReaction(reaction, user);
