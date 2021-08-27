@@ -18,6 +18,11 @@ import {Finalize} from "./Finalize";
 import {blueTeamPlayers, redTeamPlayers} from "./Teams";
 
 export let mapMsgId: string = "";
+export let mapToBePlayed: string = "";
+
+export const resetMapToBePlayed = () => {
+    mapToBePlayed = "";
+}
 
 let alreadyVotedOnOptionOne: (User | PartialUser)[];
 let alreadyVotedOnOptionTwo: (User | PartialUser)[];
@@ -131,10 +136,11 @@ const countdownTimer = () => {
             countdownTimer();
         } else {
             i = 0;
+            mapToBePlayed = getMapToBePlayed(redTeam.getHighestVotedOption(), blueTeam.getHighestVotedOption(true))
             Finalize(
                 BotActionOptions.initialize,
                 mapMsgId,
-                getMapToBePlayed(redTeam.getHighestVotedOption(), blueTeam.getHighestVotedOption(true))
+                mapToBePlayed
             );
             resetMapBanVoteOptions();
         }

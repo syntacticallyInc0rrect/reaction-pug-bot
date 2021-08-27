@@ -1,5 +1,4 @@
 import dotenv from "dotenv";
-// import {EmbedAddField} from "./Queue";
 dotenv.config();
 
 export type BotAction = BotActionOptions;
@@ -15,29 +14,37 @@ const getBotToken = (): string => {
     if (process.env.BOT_TOKEN) {
         return process.env.BOT_TOKEN;
     } else {
-        throw Error("Error: Your bot token is undefined!");
+        throw Error("Your bot token is undefined!");
     }
 };
 const getBotName = (): string => {
     if (process.env.BOT_NAME) {
         return process.env.BOT_NAME;
     } else {
-        throw Error("Error: Your bot name is undefined!");
+        throw Error("Your bot name is undefined!");
     }
 };
 const getMapPool = (): string[] => {
     if (process.env.MAP_POOL) {
         return process.env.MAP_POOL.split(',');
     } else {
-        throw Error("Error: Your map pool is undefined!");
+        throw Error("Your map pool is undefined!");
     }
 };
+
+const getDiscordId = (): string => {
+    if (process.env.DISCORD_ID) {
+        return process.env.DISCORD_ID;
+    } else {
+        throw Error("Your discord ID is undefined!")
+    }
+}
 
 const getChannelId = (): string => {
     if (process.env.CHANNEL_ID) {
         return process.env.CHANNEL_ID;
     } else {
-        throw Error("Error: Your channel ID is undefined!");
+        throw Error("Your channel ID is undefined!");
     }
 };
 
@@ -45,7 +52,7 @@ const getTimeToAlert = (): Date => {
     if (process.env.TIME_TO_ALERT) {
         return new Date(parseInt(process.env.TIME_TO_ALERT));
     } else {
-        throw Error("Error: Your time to alert user is undefined!");
+        throw Error("Your time to alert user is undefined!");
     }
 }
 
@@ -53,7 +60,7 @@ const getTimeToRespond = (): number => {
     if (process.env.TIME_TO_RESPOND) {
         return parseInt(process.env.TIME_TO_RESPOND);
     } else {
-        throw Error("Error: Your time for user to respond to alert is undefined!");
+        throw Error("Your time for user to respond to alert is undefined!");
     }
 }
 
@@ -61,26 +68,26 @@ const getDefaultValueForEmptyTeam = (): string => {
     if (process.env.DEFAULT_VALUE_FOR_EMPTY_TEAM) {
         return process.env.DEFAULT_VALUE_FOR_EMPTY_TEAM;
     } else {
-        throw Error("Error: Your default value for when a team is empty is undefined!");
+        throw Error("Your default value for when a team is empty is undefined!");
     }
 }
 
-// export type QueueAlertEmbedConstructor = {
-//     color: string,
-//     title: string,
-//     thumbnail: string,
-//     alertField: EmbedAddField
-// }
+const getMatchSize = (): number => {
+    if (process.env.MATCH_SIZE) {
+        return parseInt(process.env.MATCH_SIZE);
+    } else {
+        throw Error("Your match size value is undefined!")
+    }
+}
 
 export const botToken: string = getBotToken();
 export const botName: string = getBotName();
 export const mapPool: string[] = getMapPool();
-export const discordId: string | undefined = process.env.DISCORD_ID;
+export const discordId: string = getDiscordId();
 export const channelId: string = getChannelId();
 export const channelFullPath = `https://discord.com/channels/${discordId}/${channelId}`
 export const defaultValueForEmptyTeam: string = getDefaultValueForEmptyTeam();
-// export const logo = process.env.LOGO;
-//TODO: create getters for the following 3
+//TODO: create getters for the everything that is in .env
 export const queueEmojiName: string = "ew_mouse"; /*process.env.QUEUE_EMOJI_NAME;*/
 export const queueEmojiId: string = "<:ew_mouse:791235695619473449>"; /*process.env.QUEUE_EMOJI_ID;*/
 export const queueEmojiIdNum: string = "791235695619473449"; /*process.env.QUEUE_EMOJI_ID_NUM;*/
@@ -108,7 +115,7 @@ export const queueEmbedTitle: string = "Reaction Based PUG Bot"; /*process.env.Q
 export const teamsEmbedTitle: string = "Choose Your Side"; /*process.env.TEAMS_EMBED_TITLE;*/
 export const directMessageTitle: string = "Hey!"; /*process.env.DIRECT_MESSAGE_TITLE;*/
 export const directMessageName: string = "Your 5v5 Sandstorm Game is Ready!" /*process.env.DIRECT_MESSAGE_NAME;*/
-export const matchSize: number = 10; /*parseInt(process.env.MATCH_SIZE)*/
+export const matchSize: number = getMatchSize();
 export const teamSize: number = matchSize / 2;
 export const admins: string[] | undefined = ["first", "second"]/*process.env.ADMINS.split(',');*/
 export const resetTeamsEmojiName: string = "♻";/*process.env.RESET_TEAMS_EMOJI_NAME;*/

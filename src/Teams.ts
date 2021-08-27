@@ -1,7 +1,7 @@
 import {MessageEmbed, MessageReaction, PartialUser, StringResolvable, User} from "discord.js";
 import {
     admins,
-    blueTeamEmojiId,
+    blueTeamEmojiId, blueTeamEmojiIdNum,
     blueTeamEmojiName,
     BotAction,
     BotActionOptions,
@@ -14,7 +14,7 @@ import {
     directMessageThumbnailUrl,
     directMessageTitle,
     matchSize,
-    redTeamEmojiId,
+    redTeamEmojiId, redTeamEmojiIdNum,
     redTeamEmojiName,
     resetPugEmojiName,
     resetTeamsEmojiName,
@@ -174,7 +174,7 @@ const handleReactionAdd = (reaction: MessageReaction, user: User | PartialUser) 
     const handleTeamReaction = (
         myTeamPlayers: (User | PartialUser)[],
         theirTeamPlayers: (User | PartialUser)[],
-        myTeamEmojiId: string
+        myTeamEmojiIdNum: string
     ) => {
         if (playerIsQueued && !theirTeamPlayers.find(u => u === user) && myTeamPlayers.length < teamSize) {
             myTeamPlayers === redTeamPlayers ? redTeamPlayers.push(user) : blueTeamPlayers.push(user);
@@ -188,7 +188,7 @@ const handleReactionAdd = (reaction: MessageReaction, user: User | PartialUser) 
                 )
                 return fetchedReaction;
             };
-            getReaction(reaction, myTeamEmojiId).users.remove(user.id).then(
+            getReaction(reaction, myTeamEmojiIdNum).users.remove(user.id).then(
                 () => console.log(`${user.username}'s reaction was removed at ${Date.now()}`)
             );
         }
@@ -200,10 +200,10 @@ const handleReactionAdd = (reaction: MessageReaction, user: User | PartialUser) 
     if (playerIsQueued || isAdmin) {
         switch (reaction.emoji.name) {
             case redTeamEmojiName:
-                handleTeamReaction(redTeamPlayers, blueTeamPlayers, redTeamEmojiId);
+                handleTeamReaction(redTeamPlayers, blueTeamPlayers, redTeamEmojiIdNum);
                 break;
             case blueTeamEmojiName:
-                handleTeamReaction(blueTeamPlayers, redTeamPlayers, blueTeamEmojiId);
+                handleTeamReaction(blueTeamPlayers, redTeamPlayers, blueTeamEmojiIdNum);
                 break;
             case resetTeamsEmojiName:
                 resetTeams(reaction);

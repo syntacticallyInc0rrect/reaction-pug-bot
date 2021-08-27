@@ -4,7 +4,8 @@ import {BotActionOptions, botName, botToken, channelId, timeToRespond} from "./A
 import {Hourglass} from "./Hourglass";
 import {Queue, queuedPlayers, queueMsgId} from "./Queue";
 import {Teams, tmMsgId} from "./Teams";
-import {mapMsgId, Maps} from "./Maps";
+import {mapMsgId, Maps, mapToBePlayed} from "./Maps";
+import {Finalize, finalMsgId} from "./Finalize";
 
 export const client: Client = new Client();
 
@@ -52,12 +53,11 @@ client.on('messageReactionAdd', (
             case mapMsgId:
                 Maps(BotActionOptions.reactionAdd, reaction, user);
                 break;
-            /*TODO:
-            case "finalMsgId":
-                Finalize(BotActionOptions.reactionAdd, reaction, user);
+            case finalMsgId:
+                Finalize(BotActionOptions.reactionAdd, finalMsgId, mapToBePlayed, reaction, user);
                 break;
             default:
-                break; */
+                break;
         }
     }
 });

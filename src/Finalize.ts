@@ -15,6 +15,7 @@ import {blueTeamPlayers, redTeamPlayers, wipeTeams} from "./Teams";
 import {textChannel} from "./Bot";
 import {EmbedField, Queue, removeReaction} from "./Queue";
 import {Hourglass} from "./Hourglass";
+import {resetMapToBePlayed} from "./Maps";
 
 export let finalMsgId: string;
 
@@ -76,6 +77,7 @@ export const Finalize = (
             if (reaction.emoji.name === resetPugEmojiName) {
                 reaction.message.delete().then(() => {
                     wipeTeams();
+                    resetMapToBePlayed();
                     Queue(BotActionOptions.initialize);
                     Hourglass();
                 })
