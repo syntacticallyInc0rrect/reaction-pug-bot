@@ -42,11 +42,11 @@ const getChannelId = (): string => {
 };
 
 const getTimeToAlert = (): Date => {
-   if (process.env.TIME_TO_ALERT) {
-       return new Date(parseInt(process.env.TIME_TO_ALERT));
-   } else {
-       throw Error("Error: Your time to alert user is undefined!");
-   }
+    if (process.env.TIME_TO_ALERT) {
+        return new Date(parseInt(process.env.TIME_TO_ALERT));
+    } else {
+        throw Error("Error: Your time to alert user is undefined!");
+    }
 }
 
 const getTimeToRespond = (): number => {
@@ -75,35 +75,42 @@ const getDefaultValueForEmptyTeam = (): string => {
 export const botToken: string = getBotToken();
 export const botName: string = getBotName();
 export const mapPool: string[] = getMapPool();
-// export const discordId: string | undefined = process.env.DISCORD_ID;
+export const discordId: string | undefined = process.env.DISCORD_ID;
 export const channelId: string = getChannelId();
-// export const channelFullPath = `https://discord.com/channels/${discordId}/${channelId}`
+export const channelFullPath = `https://discord.com/channels/${discordId}/${channelId}`
 export const defaultValueForEmptyTeam: string = getDefaultValueForEmptyTeam();
 // export const logo = process.env.LOGO;
 //TODO: create getters for the following 3
 export const queueEmojiName: string = "ew_mouse"; /*process.env.QUEUE_EMOJI_NAME;*/
 export const queueEmojiId: string = "<:ew_mouse:791235695619473449>"; /*process.env.QUEUE_EMOJI_ID;*/
 export const queueEmojiIdNum: string = "791235695619473449"; /*process.env.QUEUE_EMOJI_ID_NUM;*/
-//redTeamEmojiName
-//redTeamEmojiId
-//redTeamEmojiIdNum
-//blueTeamEmojiName
-//blueTeamEmojiId
-//bueTeamEmojiIdNum
+export const redTeamEmojiName: string = "Security_Banner"; /*process.env.RED_TEAM_EMOJI_NAME;*/
+export const redTeamEmojiId: string = "<:Security_Banner:818597693227008050>"; /*process.env.RED_TEAM_EMOJI_ID;*/
+export const redTeamEmojiIdNum: string = "818597693227008050"; /*process.env.RED_TEAM_EMOJI_ID_NUM;*/
+export const blueTeamEmojiName: string = "Insurgency_Icon"; /*process.env.BLUE_TEAM_EMOJI_NAME;*/
+export const blueTeamEmojiId: string = "<:Insurgency_Icon:818597711783133194>"; /*process.env.BLUE_TEAM_EMOJI_ID;*/
+export const blueTeamEmojiIdNum: string = "818597711783133194"; /*process.env.BLUE_TEAM_EMOJI_ID_NUM;*/
 //TODO: make colors for each embed but give option for all to inherit from default
 export const defaultEmbedColor: string = "#ff0000" /*process.env.DEFAULT_EMBED_COLOR*/
 export const queueEmbedColor: string | undefined = undefined /*process.env.QUEUE_EMBED_COLOR*/
+export const teamsEmbedColor: string | undefined = undefined /*process.env.TEAMS_EMBED_COLOR*/
+export const directMessageEmbedColor: string | undefined = undefined /*process.env.DIRECT_MESSAGE_EMBED_COLOR*/
 //TODO: make thumbnailUrl for each embed but give option for all to inherit from default
 export const defaultEmbedThumbnailUrl: string = "https://www.example.com"; /*process.env.DEFAULT_EMBED_THUMBNAIL_URL;*/
 export const queueEmbedThumbnailUrl: string | undefined = undefined; /*process.env.QUEUE_EMBED_THUMBNAIL_URL;*/
+export const teamsEmbedThumbnailUrl: string | undefined = undefined; /*process.env.TEAMS_EMBED_THUMBNAIL_URL;*/
+export const directMessageThumbnailUrl: string | undefined = undefined; /*process.env.TEAMS_EMBED_THUMBNAIL_URL;*/
 export const queueEmbedTitle: string = "Reaction Based PUG Bot"; /*process.env.QUEUE_EMBED_TITLE;*/
+export const teamsEmbedTitle: string = "Choose Your Side"; /*process.env.TEAMS_EMBED_TITLE;*/
+export const directMessageTitle: string = "Hey!"; /*process.env.DIRECT_MESSAGE_TITLE;*/
+export const directMessageName: string = "Your 5v5 Sandstorm Game is Ready!" /*process.env.DIRECT_MESSAGE_NAME;*/
 export const matchSize: number = 10; /*parseInt(process.env.MATCH_SIZE)*/
-export const teamSize = matchSize / 2;
-//admins
-//resetTeamsEmojiName
+export const teamSize: number = matchSize / 2;
+export const admins: string[] | undefined = ["first", "second"]/*process.env.ADMINS.split(',');*/
+export const resetTeamsEmojiName: string = "♻";/*process.env.RESET_TEAMS_EMOJI_NAME*/
 //resetTeamsEmojiId
 //resetTeamsEmojiIdNum
-//resetPugEmojiName
+export const resetPugEmojiName: string = "⛔";/*process.env.RESET_PUG_EMOJI_NAME*/
 //resetPugEmojiId
 //resetPugEmojiIdNum
 //optionOneEmojiName

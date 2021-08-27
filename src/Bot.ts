@@ -1,11 +1,28 @@
-import {Client, MessageReaction, PartialUser, User} from "discord.js";
+import {Channel, Client, MessageReaction, PartialUser, TextChannel, User} from "discord.js";
 import {Alerts} from "./Alerts";
-import {BotActionOptions, botName, botToken, timeToRespond} from "./Api";
+import {BotActionOptions, botName, botToken, channelId, timeToRespond} from "./Api";
 import {Hourglass} from "./Hourglass";
-import {Queue, queuedPlayers} from "./Queue";
-import {Teams} from "./Teams";
+import {Queue, queuedPlayers, queueMsgId} from "./Queue";
+import {Teams, tmMsgId} from "./Teams";
+import {mapMsgId, Maps} from "./Maps";
 
 export const client: Client = new Client();
+
+export const getChannel = (): Channel => {
+    const channel = client.channels.cache.get(channelId);
+    if (!channel) throw Error("Your Client does not have any Channels. This is a problem.");
+    return channel;
+}
+
+export const getTextChannel = (channel: Channel): TextChannel => {
+    const isChannelATextChannel = channel instanceof TextChannel;
+    if (!isChannelATextChannel) throw Error(
+        "Your channel is not a Text Channel. Please correct your Channel ID"
+    );
+    return <TextChannel>channel;
+};
+
+export let textChannel: TextChannel;
 
 client.login(botToken).then(() => {
     setInterval(() => !!queuedPlayers && Alerts(), timeToRespond);
@@ -13,6 +30,7 @@ client.login(botToken).then(() => {
 });
 
 client.on('ready', () => {
+    textChannel = getTextChannel(getChannel());
     Queue(BotActionOptions.initialize);
     Hourglass();
 });
@@ -22,23 +40,24 @@ client.on('messageReactionAdd', (
     user: User | PartialUser
 ) => {
     const isUserTheBot = user.username == botName;
-    const isMessageFromBot = reaction.message.id === /*TODO START*/ "logic goes here" /*TODO END*/
+    const isMessageFromBot = reaction.message.id === queueMsgId;
     if (!isUserTheBot && isMessageFromBot) {
         switch (reaction.message.id) {
-            case "A":
+            case queueMsgId:
                 Queue(BotActionOptions.reactionAdd, reaction, user);
                 break;
-            case "B":
+            case tmMsgId:
                 Teams(BotActionOptions.reactionAdd, reaction, user);
                 break;
-            case "C":
-                //TODO: Maps(BotActionOptions.reactionAdd, reaction, user);
+            case mapMsgId:
+                Maps(BotActionOptions.reactionAdd, reaction, user);
                 break;
-            case "D":
-                //TODO: Finalize(BotActionOptions.reactionAdd, reaction, user);
+            /*TODO:
+            case "finalMsgId":
+                Finalize(BotActionOptions.reactionAdd, reaction, user);
                 break;
             default:
-                break;
+                break; TODO*/
         }
     }
 });
@@ -48,14 +67,14 @@ client.on('messageReactionRemove', (
     user: User | PartialUser
 ) => {
     switch (reaction.message.id) {
-        case "A":
+        case queueMsgId:
             Queue(BotActionOptions.reactionRemove, reaction, user);
             break;
-        case "B":
-            //TODO: Teams(BotActionOptions.reactionRemove, reaction, user);
+        case tmMsgId:
+            Teams(BotActionOptions.reactionRemove, reaction, user);
             break;
-        case "C":
-            //TODO: Maps(BotActionOptions.reactionRemove, reaction, user);
+        case mapMsgId:
+            Maps(BotActionOptions.reactionRemove, reaction, user);
             break;
         default:
             break;
