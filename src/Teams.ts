@@ -144,12 +144,15 @@ const resetTeams = (reaction: MessageReaction) => {
     reaction.message.reactions.removeAll().then(() => updateTeams(reaction, true));
 };
 
-const resetPug = () => {
+const resetPug = (reaction: MessageReaction) => {
     unassignedPlayers = [];
     wipeTeams();
     queuedPlayers.splice(0, queuedPlayers.length);
-    Queue(BotActionOptions.initialize);
-    Hourglass();
+    reaction.message.delete().then(() => {
+        Queue(BotActionOptions.initialize);
+        Hourglass();
+    })
+
 };
 
 const removeRedTeamReaction = (reaction: MessageReaction, user: User | PartialUser) => {
@@ -215,7 +218,7 @@ const handleReactionAdd = (reaction: MessageReaction, user: User | PartialUser) 
                 resetTeams(reaction);
                 break;
             case resetPugEmojiName:
-                resetPug();
+                resetPug(reaction);
                 break;
             default:
                 removeReaction(reaction, user);

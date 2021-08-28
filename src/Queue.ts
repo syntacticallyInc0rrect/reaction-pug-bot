@@ -12,10 +12,12 @@ import {
     queueEmbedTitle,
     queueEmojiId,
     queueEmojiIdNum,
-    queueEmojiName
+    queueEmojiName,
+    resetPugEmojiName
 } from "./Api";
 import {textChannel} from "./Bot";
 import {Teams} from "./Teams";
+import {Hourglass} from "./Hourglass";
 
 export type QueuedPlayer = {
     user: User | PartialUser,
@@ -73,6 +75,13 @@ const handleReactionAdd = (reaction?: MessageReaction, user?: User | PartialUser
                 queuedPlayers = [];
             }
         }
+    } else if (reaction.emoji.name === resetPugEmojiName) {
+        queuedPlayers.splice(0, queuedPlayers.length);
+        reaction.message.delete().then(() => {
+            Queue(BotActionOptions.initialize);
+            Hourglass();
+        });
+
     } else {
         removeReaction(reaction, user);
     }
