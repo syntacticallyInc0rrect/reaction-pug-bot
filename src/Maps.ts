@@ -88,11 +88,14 @@ export class MapBanVote {
 
 }
 
-let banOptionOne = new BanOption();
-let banOptionTwo = new BanOption();
-let banOptionThree = new BanOption();
-let redTeam = new TeamOption("red", banOptionOne, banOptionTwo, banOptionThree);
-let blueTeam = new TeamOption("blue", banOptionOne, banOptionTwo, banOptionThree);
+let redBanOptionOne = new BanOption();
+let redBanOptionTwo = new BanOption();
+let redBanOptionThree = new BanOption();
+let blueBanOptionOne = new BanOption();
+let blueBanOptionTwo = new BanOption();
+let blueBanOptionThree = new BanOption();
+let redTeam = new TeamOption("red", redBanOptionOne, redBanOptionTwo, redBanOptionThree);
+let blueTeam = new TeamOption("blue", blueBanOptionOne, blueBanOptionTwo, blueBanOptionThree);
 let mapBanVote = new MapBanVote(redTeam, blueTeam);
 
 const resetMapBanVoteOptions = () => {

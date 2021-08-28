@@ -34,8 +34,16 @@ const getFinalEmbedProps = (mapToBePlayed: string): FinalEmbedProps => {
         color: finalEmbedColor ? finalEmbedColor : defaultEmbedColor,
         title: `Map: ${mapToBePlayed}`,
         thumbnail: finalEmbedThumbnailUrl ? finalEmbedThumbnailUrl : defaultEmbedThumbnailUrl,
-        redTeamField: {name: redTeamEmojiId, value: redTeamPlayers, inline: true},
-        blueTeamField: {name: blueTeamEmojiId, value: blueTeamPlayers, inline: true}
+        redTeamField: {
+            name: redTeamEmojiId,
+            value: redTeamPlayers.length > 0 ? redTeamPlayers : "Something is wrong. Contact an Admin.",
+            inline: true
+        },
+        blueTeamField: {
+            name: blueTeamEmojiId,
+            value: blueTeamPlayers.length > 0 ? blueTeamPlayers : "Something is wrong. Contact an Admin.",
+            inline: true
+        }
     };
 };
 
@@ -62,7 +70,10 @@ export const Finalize = (
         }
 
         getMessage().delete().then(() => {
-            textChannel.send(buildFinalEmbed(getFinalEmbedProps(mapToBePlayed))).then(m => finalMsgId = m.id)
+            textChannel.send(buildFinalEmbed(getFinalEmbedProps(mapToBePlayed))).then(m => {
+                finalMsgId = m.id;
+                m.react(resetPugEmojiName);
+            })
         });
 
     };
