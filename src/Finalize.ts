@@ -49,6 +49,7 @@ const getFinalEmbedProps = (mapToBePlayed: string): FinalEmbedProps => {
 
 const buildFinalEmbed = (props: FinalEmbedProps): MessageEmbed => {
     return new MessageEmbed()
+        .setAuthor(props.author)
         .setColor(props.color)
         .setTitle(props.title)
         .setThumbnail(props.thumbnail)
