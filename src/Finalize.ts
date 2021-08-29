@@ -11,7 +11,7 @@ import {
     resetPugEmojiName
 } from "./Api";
 import {Message, MessageEmbed, MessageReaction, PartialUser, StringResolvable, User} from "discord.js";
-import {blueTeamPlayers, redTeamPlayers, wipeTeams} from "./Teams";
+import {blueTeam, redTeam, wipeTeams} from "./Teams";
 import {textChannel} from "./Bot";
 import {EmbedField, Queue, removeReaction} from "./Queue";
 import {Hourglass} from "./Hourglass";
@@ -36,12 +36,12 @@ const getFinalEmbedProps = (mapToBePlayed: string): FinalEmbedProps => {
         thumbnail: finalEmbedThumbnailUrl ? finalEmbedThumbnailUrl : defaultEmbedThumbnailUrl,
         redTeamField: {
             name: redTeamEmojiId,
-            value: redTeamPlayers.length > 0 ? redTeamPlayers : "Something is wrong. Contact an Admin.",
+            value: redTeam.players.length > 0 ? redTeam.players : "Something is wrong. Contact an Admin.",
             inline: true
         },
         blueTeamField: {
             name: blueTeamEmojiId,
-            value: blueTeamPlayers.length > 0 ? blueTeamPlayers : "Something is wrong. Contact an Admin.",
+            value: blueTeam.players.length > 0 ? blueTeam.players : "Something is wrong. Contact an Admin.",
             inline: true
         }
     };
@@ -81,8 +81,8 @@ export const Finalize = (
 
     const handleReactionAdd = (reaction?: MessageReaction, user?: User | PartialUser) => {
         if (!reaction || !user) throw Error("Tried to add a Reaction to the Finalize Embed without a Reaction or a User.")
-        const playerIsInThisPug: boolean = !!redTeamPlayers.find(u => u === user) ||
-            !!blueTeamPlayers.find(u => u === user);
+        const playerIsInThisPug: boolean = !!redTeam.players.find(u => u === user) ||
+            !!blueTeam.players.find(u => u === user);
         const isAdmin = !!admins && !!admins.find(u => user.presence && u.valueOf() === user.presence.userID);
 
         if (playerIsInThisPug || isAdmin) {

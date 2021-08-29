@@ -4,18 +4,20 @@ import {
     BotActionOptions,
     defaultEmbedColor,
     defaultEmbedThumbnailUrl,
+    getTeamName,
     mapsEmbedColor,
     mapsEmbedThumbnailUrl,
     optionOneEmojiName,
     optionThreeEmojiName,
     optionTwoEmojiName,
+    TeamNameOptions,
     timeToBanMap
 } from "./Api";
 import {suggestedMaps} from "./Hourglass";
 import {EmbedField, removeReaction} from "./Queue";
 import {textChannel} from "./Bot";
 import {Finalize} from "./Finalize";
-import {blueTeamPlayers, redTeamPlayers} from "./Teams";
+import {blueTeam, redTeam, tmMsgId} from "./Teams";
 
 export let mapMsgId: string = "";
 export let mapToBePlayed: string = "";
@@ -67,19 +69,19 @@ export class TeamOption {
 }
 
 export class MapBanVote {
-    public redTeam: TeamOption;
-    public blueTeam: TeamOption;
+    public red: TeamOption;
+    public blue: TeamOption;
 
     constructor(redTeam: TeamOption, blueTeam: TeamOption) {
-        this.redTeam = redTeam;
-        this.blueTeam = blueTeam;
+        this.red = redTeam;
+        this.blue = blueTeam;
     };
 
     public getTeamByTeamName = (teamName: string): TeamOption => {
-        if (teamName === this.redTeam.teamName) {
-            return this.redTeam;
-        } else if (teamName === this.blueTeam.teamName) {
-            return this.blueTeam;
+        if (teamName === this.red.teamName) {
+            return this.red;
+        } else if (teamName === this.blue.teamName) {
+            return this.blue;
         } else {
             throw Error(`Team Name: ${teamName}, was not found in MapBanVote Object.`);
         }
@@ -94,9 +96,9 @@ let redBanOptionThree = new BanOption();
 let blueBanOptionOne = new BanOption();
 let blueBanOptionTwo = new BanOption();
 let blueBanOptionThree = new BanOption();
-let redTeam = new TeamOption("red", redBanOptionOne, redBanOptionTwo, redBanOptionThree);
-let blueTeam = new TeamOption("blue", blueBanOptionOne, blueBanOptionTwo, blueBanOptionThree);
-let mapBanVote = new MapBanVote(redTeam, blueTeam);
+let redTeamOption = new TeamOption(getTeamName(TeamNameOptions.red), redBanOptionOne, redBanOptionTwo, redBanOptionThree);
+let blueTeamOption = new TeamOption(getTeamName(TeamNameOptions.blue), blueBanOptionOne, blueBanOptionTwo, blueBanOptionThree);
+let mapBanVote = new MapBanVote(redTeamOption, blueTeamOption);
 
 const resetMapBanVoteOptions = () => {
     const setMapBanVote = (team: TeamOption) => {
@@ -108,8 +110,8 @@ const resetMapBanVoteOptions = () => {
         mapBanVote.getTeamByTeamName(team.teamName).optionThree.count = 0;
     };
 
-    setMapBanVote(redTeam);
-    setMapBanVote(blueTeam);
+    setMapBanVote(redTeamOption);
+    setMapBanVote(blueTeamOption);
 
     alreadyVotedOnOptionOne = [];
     alreadyVotedOnOptionTwo = [];
@@ -140,7 +142,7 @@ const countdownTimer = () => {
             i++
         } else {
             i = 1;
-            mapToBePlayed = getMapToBePlayed(redTeam.getHighestVotedOption(), blueTeam.getHighestVotedOption(true))
+            mapToBePlayed = getMapToBePlayed(redTeamOption.getHighestVotedOption(), blueTeamOption.getHighestVotedOption(true))
             Finalize(
                 BotActionOptions.initialize,
                 mapMsgId,
@@ -170,17 +172,17 @@ const getMapsEmbedProps = (secondsElapsed: number): MapsEmbedProps => {
         thumbnail: mapsEmbedThumbnailUrl ? mapsEmbedThumbnailUrl : defaultEmbedThumbnailUrl,
         optionOneField: {
             name: `${optionOneEmojiName} ${suggestedMaps[0]}`,
-            value: `${redTeam.optionOne.count}/${blueTeam.optionOne.count}`,
+            value: `${redTeamOption.optionOne.count}/${blueTeamOption.optionOne.count}`,
             inline: true
         },
         optionTwoField: {
             name: `${optionTwoEmojiName} ${suggestedMaps[1]}`,
-            value: `${redTeam.optionTwo.count}/${blueTeam.optionTwo.count}`,
+            value: `${redTeamOption.optionTwo.count}/${blueTeamOption.optionTwo.count}`,
             inline: true
         },
         optionThreeField: {
             name: `${optionThreeEmojiName} ${suggestedMaps[2]}`,
-            value: `${redTeam.optionThree.count}/${blueTeam.optionThree.count}`,
+            value: `${redTeamOption.optionThree.count}/${blueTeamOption.optionThree.count}`,
             inline: true
         },
         countdownField: {
@@ -205,7 +207,7 @@ const updateMaps = (msgId: string, secondsElapsed: number) => {
         if (!message) throw Error("The Bot Message was not found. This is a problem.");
         return message;
     }
-    if (msgId !== "") {
+    if (msgId === mapMsgId) {
         getMessage().edit(buildMapsEmbed(getMapsEmbedProps(secondsElapsed))).then(m => mapMsgId = m.id);
     } else {
         textChannel.send(buildMapsEmbed(getMapsEmbedProps(secondsElapsed))).then(m => {
@@ -220,8 +222,8 @@ const updateMaps = (msgId: string, secondsElapsed: number) => {
 export const Maps = (action: BotAction, reaction: MessageReaction, user: User | PartialUser) => {
     const handleReactionAdd = (reaction: MessageReaction, user: User | PartialUser) => {
         if (!reaction || !user) throw Error("Tried to add a Reaction to the Map Ban Embed without a Reaction or a User.")
-        const playerIsInThisPug: boolean = !!redTeamPlayers.find(u => u === user) ||
-            !!blueTeamPlayers.find(u => u === user);
+        const playerIsInThisPug: boolean = !!redTeam.players.find(u => u === user) ||
+            !!blueTeam.players.find(u => u === user);
 
         if (!playerIsInThisPug) {
             return;
@@ -233,17 +235,19 @@ export const Maps = (action: BotAction, reaction: MessageReaction, user: User | 
                     !alreadyVotedOnOptionTwo.find(u => u === user) &&
                     !alreadyVotedOnOptionThree.find(u => u === user)
                 ) {
-                    if (redTeamPlayers.find(u => u === user)) {
-                        redTeam.optionOne.count++;
+                    if (redTeam.players.find(u => u === user)) {
+                        redTeamOption.optionOne.count++;
                         alreadyVotedOnOptionOne.push(user);
-                    } else if (blueTeamPlayers.find(u => u === user)) {
-                        blueTeam.optionOne.count++;
+                    } else if (blueTeam.players.find(u => u === user)) {
+                        blueTeamOption.optionOne.count++;
                         alreadyVotedOnOptionOne.push(user);
                     } else {
                         throw Error(
                             "User was not found on either team and should not have been allowed to get this far."
                         )
                     }
+                } else {
+                    removeReaction(reaction, user);
                 }
                 break;
             case optionTwoEmojiName:
@@ -251,17 +255,19 @@ export const Maps = (action: BotAction, reaction: MessageReaction, user: User | 
                     !alreadyVotedOnOptionOne.find(u => u === user) &&
                     !alreadyVotedOnOptionThree.find(u => u === user)
                 ) {
-                    if (redTeamPlayers.find(u => u === user)) {
-                        redTeam.optionTwo.count++;
+                    if (redTeam.players.find(u => u === user)) {
+                        redTeamOption.optionTwo.count++;
                         alreadyVotedOnOptionTwo.push(user);
-                    } else if (blueTeamPlayers.find(u => u === user)) {
-                        blueTeam.optionTwo.count++;
+                    } else if (blueTeam.players.find(u => u === user)) {
+                        blueTeamOption.optionTwo.count++;
                         alreadyVotedOnOptionTwo.push(user);
                     } else {
                         throw Error(
                             "User was not found on either team and should not have been allowed to get this far."
                         )
                     }
+                } else {
+                    removeReaction(reaction, user);
                 }
                 break;
             case optionThreeEmojiName:
@@ -269,17 +275,19 @@ export const Maps = (action: BotAction, reaction: MessageReaction, user: User | 
                     !alreadyVotedOnOptionOne.find(u => u === user) &&
                     !alreadyVotedOnOptionTwo.find(u => u === user)
                 ) {
-                    if (redTeamPlayers.find(u => u === user)) {
-                        redTeam.optionThree.count++;
+                    if (redTeam.players.find(u => u === user)) {
+                        redTeamOption.optionThree.count++;
                         alreadyVotedOnOptionThree.push(user);
-                    } else if (blueTeamPlayers.find(u => u === user)) {
-                        blueTeam.optionThree.count++;
+                    } else if (blueTeam.players.find(u => u === user)) {
+                        blueTeamOption.optionThree.count++;
                         alreadyVotedOnOptionThree.push(user);
                     } else {
                         throw Error(
                             "User was not found on either team and should not have been allowed to get this far."
                         )
                     }
+                } else {
+                    removeReaction(reaction, user);
                 }
                 break;
             default:
@@ -292,10 +300,10 @@ export const Maps = (action: BotAction, reaction: MessageReaction, user: User | 
         switch (reaction.emoji.name) {
             case optionOneEmojiName:
                 if (alreadyVotedOnOptionOne.find(u => u === user)) {
-                    if (redTeamPlayers.find(u => u === user)) {
-                        redTeam.optionOne.count--;
-                    } else if (blueTeamPlayers.find(u => u === user)) {
-                        blueTeam.optionOne.count--;
+                    if (redTeam.players.find(u => u === user)) {
+                        redTeamOption.optionOne.count--;
+                    } else if (blueTeam.players.find(u => u === user)) {
+                        blueTeamOption.optionOne.count--;
                     } else {
                         throw Error(
                             "User was not found on either team and should not have been allowed to get this far."
@@ -306,10 +314,10 @@ export const Maps = (action: BotAction, reaction: MessageReaction, user: User | 
                 break;
             case optionTwoEmojiName:
                 if (alreadyVotedOnOptionTwo.find(u => u === user)) {
-                    if (redTeamPlayers.find(u => u === user)) {
-                        redTeam.optionTwo.count--;
-                    } else if (blueTeamPlayers.find(u => u === user)) {
-                        blueTeam.optionTwo.count--;
+                    if (redTeam.players.find(u => u === user)) {
+                        redTeamOption.optionTwo.count--;
+                    } else if (blueTeam.players.find(u => u === user)) {
+                        blueTeamOption.optionTwo.count--;
                     } else {
                         throw Error(
                             "User was not found on either team and should not have been allowed to get this far."
@@ -320,10 +328,10 @@ export const Maps = (action: BotAction, reaction: MessageReaction, user: User | 
                 break;
             case optionThreeEmojiName:
                 if (alreadyVotedOnOptionThree.find(u => u === user)) {
-                    if (redTeamPlayers.find(u => u === user)) {
-                        redTeam.optionThree.count--;
-                    } else if (blueTeamPlayers.find(u => u === user)) {
-                        blueTeam.optionThree.count--;
+                    if (redTeam.players.find(u => u === user)) {
+                        redTeamOption.optionThree.count--;
+                    } else if (blueTeam.players.find(u => u === user)) {
+                        blueTeamOption.optionThree.count--;
                     } else {
                         throw Error(
                             "User was not found on either team and should not have been allowed to get this far."
@@ -340,7 +348,7 @@ export const Maps = (action: BotAction, reaction: MessageReaction, user: User | 
     switch (action) {
         case BotActionOptions.initialize:
             resetMapBanVoteOptions();
-            updateMaps(mapMsgId, 0);
+            updateMaps(tmMsgId, 0);
             break;
         case BotActionOptions.reactionAdd:
             handleReactionAdd(reaction, user);

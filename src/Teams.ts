@@ -14,12 +14,14 @@ import {
     directMessageName,
     directMessageThumbnailUrl,
     directMessageTitle,
+    getTeamName,
     matchSize,
     redTeamEmojiId,
     redTeamEmojiIdNum,
     redTeamEmojiName,
     resetPugEmojiName,
     resetTeamsEmojiName,
+    TeamNameOptions,
     teamsEmbedColor,
     teamsEmbedThumbnailUrl,
     teamsEmbedTitle,
@@ -31,9 +33,56 @@ import {textChannel} from "./Bot";
 import {Maps} from "./Maps";
 
 export let tmMsgId: string;
+
+export class TeamEmoji {
+    public id: string;
+    public idNum: string;
+    public name: string;
+
+    constructor(id: string, idNum: string, name: string) {
+        this.id = id;
+        this.idNum = idNum;
+        this.name = name;
+    }
+
+}
+
+export class Team {
+    public name: string;
+    public players: (User | PartialUser)[];
+    public emoji: TeamEmoji;
+
+    constructor(name: string, players: (User | PartialUser)[], emoji: TeamEmoji) {
+        this.name = name;
+        this.players = players;
+        this.emoji = emoji;
+    };
+
+}
+
+let getTeamEmoji = (whichTeam: TeamNameOptions) => {
+    if (whichTeam === TeamNameOptions.red) {
+        return new TeamEmoji(redTeamEmojiId, redTeamEmojiIdNum, redTeamEmojiName);
+    } else if (whichTeam === TeamNameOptions.blue) {
+        return new TeamEmoji(blueTeamEmojiId, blueTeamEmojiIdNum, blueTeamEmojiName);
+    } else {
+        throw Error("Unable to find team name that was outside the scope of these two teams.");
+    }
+};
+
 export let unassignedPlayers: (User | PartialUser)[] = [];
-export let redTeamPlayers: (User | PartialUser)[] = [];
-export let blueTeamPlayers: (User | PartialUser)[] = [];
+
+//TODO can these object instances be consts and still have their values changes? Probably...
+export const redTeam: Team = new Team(
+    getTeamName(TeamNameOptions.red),
+    [],
+    getTeamEmoji(TeamNameOptions.red)
+);
+export const blueTeam: Team = new Team(
+    getTeamName(TeamNameOptions.blue),
+    [],
+    getTeamEmoji(TeamNameOptions.blue)
+);
 
 type TeamsEmbedProps = {
     author: StringResolvable,
@@ -54,13 +103,13 @@ type DirectMessageEmbedProps = {
 };
 
 export const wipeTeams = () => {
-    redTeamPlayers = [];
-    blueTeamPlayers = [];
+    redTeam.players = [];
+    blueTeam.players = [];
 };
 
 const getUnassignedPlayers = (): (User | PartialUser)[] => unassignedPlayers;
-const getRedTeamPlayers = (): (User | PartialUser)[] => redTeamPlayers;
-const getBlueTeamPlayers = (): (User | PartialUser)[] => blueTeamPlayers;
+const getRedTeamPlayers = (): (User | PartialUser)[] => redTeam.players;
+const getBlueTeamPlayers = (): (User | PartialUser)[] => blueTeam.players;
 
 const getTeamsEmbedProps = (): TeamsEmbedProps => {
     return {
@@ -123,8 +172,8 @@ const sendInitialTeamsEmbed = (reaction: MessageReaction, props: TeamsEmbedProps
             tmMsgId = m.id;
             m.react(redTeamEmojiId);
             m.react(blueTeamEmojiId);
+            sendDirectMessageToQueuedPlayers(getDirectMessageEmbedProps());
         });
-        sendDirectMessageToQueuedPlayers(getDirectMessageEmbedProps());
     })
 
 };
@@ -138,8 +187,8 @@ const updateTeams = (reaction: MessageReaction, teamsReset: boolean) => {
 };
 
 const resetTeams = (reaction: MessageReaction) => {
-    unassignedPlayers.push(...redTeamPlayers);
-    unassignedPlayers.push(...blueTeamPlayers);
+    unassignedPlayers.push(...redTeam.players);
+    unassignedPlayers.push(...blueTeam.players);
     wipeTeams();
     reaction.message.reactions.removeAll().then(() => updateTeams(reaction, true));
 };
@@ -156,16 +205,16 @@ const resetPug = (reaction: MessageReaction) => {
 };
 
 const removeRedTeamReaction = (reaction: MessageReaction, user: User | PartialUser) => {
-    if (!!redTeamPlayers && !!redTeamPlayers.find(u => u === user)) {
-        redTeamPlayers.splice(redTeamPlayers.indexOf(user), 1);
+    if (!!redTeam.players && !!redTeam.players.find(u => u === user)) {
+        redTeam.players.splice(redTeam.players.indexOf(user), 1);
         unassignedPlayers.push(user);
         updateTeams(reaction, false);
     }
 };
 
 const removeBlueTeamReaction = (reaction: MessageReaction, user: User | PartialUser) => {
-    if (!!blueTeamPlayers && !!blueTeamPlayers.find(u => u === user)) {
-        blueTeamPlayers.splice(blueTeamPlayers.indexOf(user), 1);
+    if (!!blueTeam.players && !!blueTeam.players.find(u => u === user)) {
+        blueTeam.players.splice(blueTeam.players.indexOf(user), 1);
         unassignedPlayers.push(user);
         updateTeams(reaction, false);
     }
@@ -173,10 +222,10 @@ const removeBlueTeamReaction = (reaction: MessageReaction, user: User | PartialU
 
 const handleReactionAdd = (reaction: MessageReaction, user: User | PartialUser) => {
     const playerIsQueued: boolean = !!unassignedPlayers.find(u => u === user) ||
-        !!redTeamPlayers.find(u => u === user) ||
-        !!blueTeamPlayers.find(u => u === user);
+        !!redTeam.players.find(u => u === user) ||
+        !!blueTeam.players.find(u => u === user);
     const isAdmin: boolean = !!admins && !!admins.find(a => a.valueOf() === user.presence?.userID);
-    const checkIfTeamsAreFull = (): boolean => ((redTeamPlayers.length + blueTeamPlayers.length) == matchSize);
+    const checkIfTeamsAreFull = (): boolean => ((redTeam.players.length + blueTeam.players.length) == matchSize);
 
     const handleTeamReaction = (
         myTeamPlayers: (User | PartialUser)[],
@@ -185,7 +234,7 @@ const handleReactionAdd = (reaction: MessageReaction, user: User | PartialUser) 
     ) => {
 
         if (playerIsQueued && !theirTeamPlayers.find(u => u === user) && myTeamPlayers.length < teamSize) {
-            myTeamPlayers === redTeamPlayers ? redTeamPlayers.push(user) : blueTeamPlayers.push(user);
+            myTeamPlayers === redTeam.players ? redTeam.players.push(user) : blueTeam.players.push(user);
             unassignedPlayers.splice(unassignedPlayers.indexOf(user), 1);
             if (checkIfTeamsAreFull()) {
                 reaction.message.delete().then(() => Maps(BotActionOptions.initialize, reaction, user));
@@ -193,8 +242,8 @@ const handleReactionAdd = (reaction: MessageReaction, user: User | PartialUser) 
                 updateTeams(reaction, false);
             }
         } else {
-            const getReaction = (reaction: MessageReaction, myTeamEmojiId: string) => {
-                const fetchedReaction = reaction.message.reactions.cache.get(myTeamEmojiId);
+            const getReaction = (reaction: MessageReaction, myTeamEmojiIdNum: string) => {
+                const fetchedReaction = reaction.message.reactions.cache.get(myTeamEmojiIdNum);
                 if (!fetchedReaction) throw Error(
                     "No Reaction was found when trying to remove Reaction from Embed Message."
                 )
@@ -209,10 +258,12 @@ const handleReactionAdd = (reaction: MessageReaction, user: User | PartialUser) 
     if (playerIsQueued || isAdmin) {
         switch (reaction.emoji.name) {
             case redTeamEmojiName:
-                handleTeamReaction(redTeamPlayers, blueTeamPlayers, redTeamEmojiIdNum);
+                // handleTeamReaction(redTeam.players, blueTeam.players, redTeamEmojiIdNum);
+                handleTeamReaction(redTeam.players, blueTeam.players, redTeamEmojiId);
                 break;
             case blueTeamEmojiName:
-                handleTeamReaction(blueTeamPlayers, redTeamPlayers, blueTeamEmojiIdNum);
+                // handleTeamReaction(blueTeam.players, redTeam.players, blueTeamEmojiIdNum);
+                handleTeamReaction(blueTeam.players, redTeam.players, blueTeamEmojiId);
                 break;
             case resetTeamsEmojiName:
                 resetTeams(reaction);

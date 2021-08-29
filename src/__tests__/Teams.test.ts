@@ -1,6 +1,6 @@
 import {Teams} from "../Teams";
 import {BotActionOptions} from "../Api";
-import {MessageReaction, User, VoiceChannel} from "discord.js";
+import {MessageReaction, User} from "discord.js";
 
 describe("Teams", () => {
     const reactionMock = () => (({} as unknown) as MessageReaction);

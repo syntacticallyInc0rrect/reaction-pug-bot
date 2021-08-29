@@ -78,47 +78,84 @@ const getMatchSize = (): number => {
     } else {
         throw Error("Your match size value is undefined!")
     }
+};
+
+export enum TeamNameOptions {
+    red = 0,
+    blue = 1
 }
+
+export const getTeamName = (whichTeam: TeamNameOptions): string => {
+    if (whichTeam === TeamNameOptions.red) {
+        return redTeamName;
+    } else if (whichTeam === TeamNameOptions.blue) {
+        return blueTeamName;
+    } else {
+        throw Error("Unable to find team name that was outside the scope of these two teams.");
+    }
+};
+
+//TODO: get from config
+const getRedTeamName = (): string => "Security";
+const getBlueTeamName = (): string => "Insurgents";
+
+
 
 export const botToken: string = getBotToken();
 export const botName: string = getBotName();
+
+//TODO: disable Maps.ts call when mapPool.length === 0, enable random automatically if it is < 3
 export const mapPool: string[] = getMapPool();
+
+
 export const discordId: string = getDiscordId();
 export const channelId: string = getChannelId();
 export const channelFullPath = `https://discord.com/channels/${discordId}/${channelId}`
 export const defaultValueForEmptyTeam: string = getDefaultValueForEmptyTeam();
-//TODO: create getters for the everything that is in .env
 export const queueEmojiName: string = "ew_mouse"; /*process.env.QUEUE_EMOJI_NAME;*/
 export const queueEmojiId: string = "<:ew_mouse:791235695619473449>"; /*process.env.QUEUE_EMOJI_ID;*/
-export const queueEmojiIdNum: string = "791235695619473449"; /*process.env.QUEUE_EMOJI_ID_NUM;*/
+export const queueEmojiIdNum: string = "791235695619473449";
+
+//TODO: wrap all of these in getter that handle undefined values
+export const redTeamName: string = getRedTeamName();
 export const redTeamEmojiName: string = "Security_Banner"; /*process.env.RED_TEAM_EMOJI_NAME;*/
 export const redTeamEmojiId: string = "<:Security_Banner:818597693227008050>"; /*process.env.RED_TEAM_EMOJI_ID;*/
 export const redTeamEmojiIdNum: string = "818597693227008050"; /*process.env.RED_TEAM_EMOJI_ID_NUM;*/
+
+//TODO: need all 3?
+export const blueTeamName: string = getBlueTeamName();
 export const blueTeamEmojiName: string = "Insurgency_Icon"; /*process.env.BLUE_TEAM_EMOJI_NAME;*/
 export const blueTeamEmojiId: string = "<:Insurgency_Icon:818597711783133194>"; /*process.env.BLUE_TEAM_EMOJI_ID;*/
 export const blueTeamEmojiIdNum: string = "818597711783133194"; /*process.env.BLUE_TEAM_EMOJI_ID_NUM;*/
-//TODO: make colors for each embed but give option for all to inherit from default
+
+//TODO: make colors for each embed but give option for all to inherit from default (necessary?)
 export const defaultEmbedColor: string = "#ff0000" /*process.env.DEFAULT_EMBED_COLOR*/
 export const queueEmbedColor: string | undefined = undefined /*process.env.QUEUE_EMBED_COLOR*/
 export const teamsEmbedColor: string | undefined = undefined /*process.env.TEAMS_EMBED_COLOR*/
 export const mapsEmbedColor: string | undefined = undefined /*process.env.MAPS_EMBED_COLOR*/
 export const finalEmbedColor: string | undefined = undefined /*process.env.FINAL_EMBED_COLOR*/
 export const directMessageEmbedColor: string | undefined = undefined /*process.env.DIRECT_MESSAGE_EMBED_COLOR*/
-//TODO: make thumbnailUrl for each embed but give option for all to inherit from default
+
+//TODO: make thumbnailUrl for each embed but give option for all to inherit from default (necessary?)
 export const defaultEmbedThumbnailUrl: string = "https://www.example.com"; /*process.env.DEFAULT_EMBED_THUMBNAIL_URL;*/
 export const queueEmbedThumbnailUrl: string | undefined = undefined; /*process.env.QUEUE_EMBED_THUMBNAIL_URL;*/
 export const teamsEmbedThumbnailUrl: string | undefined = undefined; /*process.env.TEAMS_EMBED_THUMBNAIL_URL;*/
 export const mapsEmbedThumbnailUrl: string | undefined = undefined; /*process.env.MAPS_EMBED_THUMBNAIL_URL;*/
 export const finalEmbedThumbnailUrl: string | undefined = undefined; /*process.env.FINAL_EMBED_THUMBNAIL_URL;*/
 export const alertEmbedThumbnailUrl: string | undefined = undefined; /*process.env.FINAL_EMBED_THUMBNAIL_URL;*/
+
 export const directMessageThumbnailUrl: string | undefined = undefined; /*process.env.TEAMS_EMBED_THUMBNAIL_URL;*/
 export const queueEmbedTitle: string = "Reaction Based PUG Bot"; /*process.env.QUEUE_EMBED_TITLE;*/
 export const teamsEmbedTitle: string = "Choose Your Side"; /*process.env.TEAMS_EMBED_TITLE;*/
+
 export const directMessageTitle: string = "Hey!"; /*process.env.DIRECT_MESSAGE_TITLE;*/
 export const directMessageName: string = "Your 5v5 Sandstorm Game is Ready!" /*process.env.DIRECT_MESSAGE_NAME;*/
+
 export const matchSize: number = getMatchSize();
 export const teamSize: number = matchSize / 2;
+
 export const admins: string[] | undefined = ["first", "second"]/*process.env.ADMINS.split(',');*/
+
 export const resetTeamsEmojiName: string = "♻";/*process.env.RESET_TEAMS_EMOJI_NAME;*/
 //resetTeamsEmojiId
 //resetTeamsEmojiIdNum
