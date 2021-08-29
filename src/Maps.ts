@@ -5,7 +5,6 @@ import {
     defaultEmbedColor,
     defaultEmbedThumbnailUrl,
     getTeamName,
-    mapsEmbedColor,
     mapsEmbedThumbnailUrl,
     optionOneEmojiName,
     optionThreeEmojiName,
@@ -167,7 +166,7 @@ const getMapsEmbedProps = (secondsElapsed: number): MapsEmbedProps => {
     const secondsRemaining: number = timeToBanMap - secondsElapsed;
     const displaySecondsRemaining: string = secondsRemaining > 1 ? `${secondsRemaining}s` : `${secondsRemaining}`;
     return {
-        color: mapsEmbedColor ? mapsEmbedColor : defaultEmbedColor,
+        color: defaultEmbedColor,
         title: "Vote Which Map to Ban",
         thumbnail: mapsEmbedThumbnailUrl ? mapsEmbedThumbnailUrl : defaultEmbedThumbnailUrl,
         optionOneField: {

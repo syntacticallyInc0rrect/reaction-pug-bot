@@ -4,7 +4,6 @@ import {
     channelFullPath,
     defaultEmbedColor,
     defaultEmbedThumbnailUrl,
-    teamsEmbedColor,
     teamsEmbedTitle,
     timeToAlert
 } from "./Api";
@@ -20,11 +19,12 @@ type AlertEmbedProps = {
 }
 
 const getAlertEmbedProps = (): AlertEmbedProps => {
+    //TODO: make message make sense
     //TODO: make name and value customizable
     const name: string = `If you do not remove and re-add your reaction within 15 minutes of this message, you may be automatically removed from the queue.`;
     const value: string = `If you wish to reset your queue idle time, please go [here](${channelFullPath}) to remove and replace your reaction.\nOtherwise, feel free to re-queue whenever! :)`
     return {
-        color: teamsEmbedColor ? teamsEmbedColor : defaultEmbedColor,
+        color: defaultEmbedColor,
         title: teamsEmbedTitle,
         timestamp: new Date(),
         thumbnail: alertEmbedThumbnailUrl ? alertEmbedThumbnailUrl : defaultEmbedThumbnailUrl,

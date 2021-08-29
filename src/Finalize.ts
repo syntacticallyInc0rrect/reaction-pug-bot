@@ -5,7 +5,6 @@ import {
     BotActionOptions,
     defaultEmbedColor,
     defaultEmbedThumbnailUrl,
-    finalEmbedColor,
     finalEmbedThumbnailUrl,
     redTeamEmojiId,
     resetPugEmojiName
@@ -31,7 +30,7 @@ type FinalEmbedProps = {
 const getFinalEmbedProps = (mapToBePlayed: string): FinalEmbedProps => {
     return {
         author: "Good luck, have fun!",
-        color: finalEmbedColor ? finalEmbedColor : defaultEmbedColor,
+        color: defaultEmbedColor,
         title: `Map: ${mapToBePlayed}`,
         thumbnail: finalEmbedThumbnailUrl ? finalEmbedThumbnailUrl : defaultEmbedThumbnailUrl,
         redTeamField: {

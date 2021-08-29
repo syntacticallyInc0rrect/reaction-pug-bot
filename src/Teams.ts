@@ -1,7 +1,6 @@
 import {MessageEmbed, MessageReaction, PartialUser, StringResolvable, User} from "discord.js";
 import {
     admins,
-    blueTeamEmojiId,
     blueTeamEmojiIdNum,
     blueTeamEmojiName,
     BotAction,
@@ -10,19 +9,16 @@ import {
     defaultEmbedColor,
     defaultEmbedThumbnailUrl,
     defaultValueForEmptyTeam,
-    directMessageEmbedColor,
     directMessageName,
     directMessageThumbnailUrl,
     directMessageTitle,
     getTeamName,
     matchSize,
-    redTeamEmojiId,
     redTeamEmojiIdNum,
     redTeamEmojiName,
     resetPugEmojiName,
     resetTeamsEmojiName,
     TeamNameOptions,
-    teamsEmbedColor,
     teamsEmbedThumbnailUrl,
     teamsEmbedTitle,
     teamSize
@@ -34,54 +30,34 @@ import {Maps} from "./Maps";
 
 export let tmMsgId: string;
 
-export class TeamEmoji {
-    public id: string;
-    public idNum: string;
-    public name: string;
-
-    constructor(id: string, idNum: string, name: string) {
-        this.id = id;
-        this.idNum = idNum;
-        this.name = name;
-    }
-
-}
-
 export class Team {
     public name: string;
     public players: (User | PartialUser)[];
-    public emoji: TeamEmoji;
+    public reactionEmoji: string;
 
-    constructor(name: string, players: (User | PartialUser)[], emoji: TeamEmoji) {
+    constructor(name: string, players: (User | PartialUser)[], reactionEmoji: string) {
         this.name = name;
         this.players = players;
-        this.emoji = emoji;
+        this.reactionEmoji = reactionEmoji;
     };
 
 }
 
-let getTeamEmoji = (whichTeam: TeamNameOptions) => {
-    if (whichTeam === TeamNameOptions.red) {
-        return new TeamEmoji(redTeamEmojiId, redTeamEmojiIdNum, redTeamEmojiName);
-    } else if (whichTeam === TeamNameOptions.blue) {
-        return new TeamEmoji(blueTeamEmojiId, blueTeamEmojiIdNum, blueTeamEmojiName);
-    } else {
-        throw Error("Unable to find team name that was outside the scope of these two teams.");
-    }
-};
-
 export let unassignedPlayers: (User | PartialUser)[] = [];
+
+const redTeamReaction: string = redTeamEmojiIdNum !== "" ? redTeamEmojiIdNum : redTeamEmojiName;
+const blueTeamReaction: string = blueTeamEmojiIdNum !== "" ? blueTeamEmojiIdNum : blueTeamEmojiName;
 
 //TODO can these object instances be consts and still have their values changes? Probably...
 export const redTeam: Team = new Team(
     getTeamName(TeamNameOptions.red),
     [],
-    getTeamEmoji(TeamNameOptions.red)
+    redTeamReaction
 );
 export const blueTeam: Team = new Team(
     getTeamName(TeamNameOptions.blue),
     [],
-    getTeamEmoji(TeamNameOptions.blue)
+    blueTeamReaction
 );
 
 type TeamsEmbedProps = {
@@ -114,7 +90,7 @@ const getBlueTeamPlayers = (): (User | PartialUser)[] => blueTeam.players;
 const getTeamsEmbedProps = (): TeamsEmbedProps => {
     return {
         author: `Suggested Map: ${suggestedMaps[1]}`,
-        color: teamsEmbedColor ? teamsEmbedColor : defaultEmbedColor,
+        color: defaultEmbedColor,
         title: teamsEmbedTitle,
         thumbnail: teamsEmbedThumbnailUrl ? teamsEmbedThumbnailUrl : defaultEmbedThumbnailUrl,
         redTeamField: {
@@ -133,7 +109,7 @@ const getTeamsEmbedProps = (): TeamsEmbedProps => {
 
 const getDirectMessageEmbedProps = (): DirectMessageEmbedProps => {
     return {
-        color: directMessageEmbedColor ? directMessageEmbedColor : defaultEmbedColor,
+        color: defaultEmbedColor,
         title: directMessageTitle,
         timestamp: new Date(),
         thumbnail: directMessageThumbnailUrl ? directMessageThumbnailUrl : defaultEmbedThumbnailUrl,
@@ -170,8 +146,8 @@ const sendInitialTeamsEmbed = (reaction: MessageReaction, props: TeamsEmbedProps
     reaction.message.delete().then(() => {
         textChannel.send(buildTeamsEmbed(props)).then(m => {
             tmMsgId = m.id;
-            m.react(redTeamEmojiId);
-            m.react(blueTeamEmojiId);
+            m.react(redTeamReaction);
+            m.react(blueTeamReaction);
             sendDirectMessageToQueuedPlayers(getDirectMessageEmbedProps());
         });
     })
@@ -181,8 +157,8 @@ const sendInitialTeamsEmbed = (reaction: MessageReaction, props: TeamsEmbedProps
 const updateTeams = (reaction: MessageReaction, teamsReset: boolean) => {
     reaction.message.edit(buildTeamsEmbed(getTeamsEmbedProps())).then(m => {
         tmMsgId = m.id;
-        teamsReset && m.react(redTeamEmojiId);
-        teamsReset && m.react(blueTeamEmojiId);
+        teamsReset && m.react(redTeamReaction);
+        teamsReset && m.react(blueTeamReaction);
     })
 };
 
@@ -230,7 +206,7 @@ const handleReactionAdd = (reaction: MessageReaction, user: User | PartialUser) 
     const handleTeamReaction = (
         myTeamPlayers: (User | PartialUser)[],
         theirTeamPlayers: (User | PartialUser)[],
-        myTeamEmojiIdNum: string
+        myTeamReaction: string
     ) => {
 
         if (playerIsQueued && !theirTeamPlayers.find(u => u === user) && myTeamPlayers.length < teamSize) {
@@ -242,28 +218,24 @@ const handleReactionAdd = (reaction: MessageReaction, user: User | PartialUser) 
                 updateTeams(reaction, false);
             }
         } else {
-            const getReaction = (reaction: MessageReaction, myTeamEmojiIdNum: string) => {
-                const fetchedReaction = reaction.message.reactions.cache.get(myTeamEmojiIdNum);
-                if (!fetchedReaction) throw Error(
-                    "No Reaction was found when trying to remove Reaction from Embed Message."
+            const handleUnwantedReaction = (reaction: MessageReaction, myTeamReaction: string) => {
+                const fetchedReaction = reaction.message.reactions.cache.get(myTeamReaction);
+                fetchedReaction && fetchedReaction.users.remove(user.id).then(
+                    () => console.log(`${user.username}'s reaction was removed at ${Date.now()}`)
                 )
-                return fetchedReaction;
             };
-            getReaction(reaction, myTeamEmojiIdNum).users.remove(user.id).then(
-                () => console.log(`${user.username}'s reaction was removed at ${Date.now()}`)
-            );
+
+            handleUnwantedReaction(reaction, myTeamReaction);
         }
     };
 
     if (playerIsQueued || isAdmin) {
         switch (reaction.emoji.name) {
             case redTeamEmojiName:
-                // handleTeamReaction(redTeam.players, blueTeam.players, redTeamEmojiIdNum);
-                handleTeamReaction(redTeam.players, blueTeam.players, redTeamEmojiId);
+                handleTeamReaction(redTeam.players, blueTeam.players, redTeamReaction);
                 break;
             case blueTeamEmojiName:
-                // handleTeamReaction(blueTeam.players, redTeam.players, blueTeamEmojiIdNum);
-                handleTeamReaction(blueTeam.players, redTeam.players, blueTeamEmojiId);
+                handleTeamReaction(blueTeam.players, redTeam.players, blueTeamReaction);
                 break;
             case resetTeamsEmojiName:
                 resetTeams(reaction);
@@ -275,6 +247,8 @@ const handleReactionAdd = (reaction: MessageReaction, user: User | PartialUser) 
                 removeReaction(reaction, user);
                 break;
         }
+    } else {
+        removeReaction(reaction, user);
     }
 
 };

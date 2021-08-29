@@ -7,10 +7,8 @@ import {
     defaultValueForEmptyTeam,
     mapPool,
     matchSize,
-    queueEmbedColor,
     queueEmbedThumbnailUrl,
     queueEmbedTitle,
-    queueEmojiId,
     queueEmojiIdNum,
     queueEmojiName,
     resetPugEmojiName
@@ -38,6 +36,8 @@ type QueueEmbedProps = {
     mapPoolField: EmbedField,
     inQueueField: EmbedField
 }
+
+const queueReaction: string = queueEmojiIdNum !== "" ? queueEmojiIdNum : queueEmojiName;
 
 export const removeReaction = (reaction: MessageReaction, user: User | PartialUser) => {
     const reactionName: string = reaction.emoji.name;
@@ -107,7 +107,7 @@ const buildQueueEmbed = (props: QueueEmbedProps): MessageEmbed => {
 const sendInitialEmbed = (props: QueueEmbedProps) => {
     textChannel.send(buildQueueEmbed(props)).then(m => {
         queueMsgId = m.id;
-        m.react(queueEmojiId).then();
+        m.react(queueReaction).then();
     });
 };
 
@@ -116,7 +116,7 @@ const updateQueueEmbed = (props: QueueEmbedProps, reaction?: MessageReaction, re
         reaction.message.edit(buildQueueEmbed(props)).then();
     } else if (removedUser) {
         const queueMsg = textChannel.messages.cache.get(queueMsgId);
-        const queueReactions = queueMsg && queueMsg.reactions.cache.get(queueEmojiIdNum);
+        const queueReactions = queueMsg && queueMsg.reactions.cache.get(queueReaction);
 
         if (queueMsg) {
             queueMsg.edit(buildQueueEmbed(props)).then(
@@ -144,7 +144,7 @@ const getPlayersValue = (): StringResolvable => queuedPlayers && queuedPlayers.l
 
 const getQueueEmbedProps = (): QueueEmbedProps => {
     return {
-        color: queueEmbedColor ? queueEmbedColor : defaultEmbedColor,
+        color: defaultEmbedColor,
         title: queueEmbedTitle,
         thumbnail: queueEmbedThumbnailUrl ? queueEmbedThumbnailUrl : defaultEmbedThumbnailUrl,
         mapPoolField: {name: "Map Pool", value: mapPool, inline: true},
