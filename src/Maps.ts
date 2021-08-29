@@ -3,9 +3,7 @@ import {
     BotAction,
     BotActionOptions,
     defaultEmbedColor,
-    defaultEmbedThumbnailUrl,
     getTeamName,
-    mapsEmbedThumbnailUrl,
     optionOneEmojiName,
     optionThreeEmojiName,
     optionTwoEmojiName,
@@ -155,7 +153,6 @@ const countdownTimer = () => {
 type MapsEmbedProps = {
     color: StringResolvable,
     title: StringResolvable,
-    thumbnail: StringResolvable,
     optionOneField: EmbedField,
     optionTwoField: EmbedField,
     optionThreeField: EmbedField,
@@ -168,7 +165,6 @@ const getMapsEmbedProps = (secondsElapsed: number): MapsEmbedProps => {
     return {
         color: defaultEmbedColor,
         title: "Vote Which Map to Ban",
-        thumbnail: mapsEmbedThumbnailUrl ? mapsEmbedThumbnailUrl : defaultEmbedThumbnailUrl,
         optionOneField: {
             name: `${optionOneEmojiName} ${suggestedMaps[0]}`,
             value: `${redTeamOption.optionOne.count}/${blueTeamOption.optionOne.count}`,
@@ -196,7 +192,6 @@ const buildMapsEmbed = (props: MapsEmbedProps): MessageEmbed => {
     return new MessageEmbed()
         .setColor(props.color)
         .setTitle(props.title)
-        .setThumbnail(props.thumbnail)
         .addFields(props.optionOneField, props.optionTwoField, props.optionThreeField, props.countdownField);
 };
 
