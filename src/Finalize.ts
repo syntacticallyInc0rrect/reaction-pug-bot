@@ -1,12 +1,12 @@
 import {
     admins,
-    blueTeamEmojiId,
+    blueTeamEmojiId, blueTeamEmojiName, blueTeamName,
     BotAction,
     BotActionOptions,
     defaultEmbedColor,
     defaultEmbedThumbnailUrl,
     finalEmbedThumbnailUrl,
-    redTeamEmojiId,
+    redTeamEmojiId, redTeamEmojiName, redTeamName,
     resetPugEmojiName
 } from "./Api";
 import {Message, MessageEmbed, MessageReaction, PartialUser, StringResolvable, User} from "discord.js";
@@ -34,12 +34,12 @@ const getFinalEmbedProps = (mapToBePlayed: string): FinalEmbedProps => {
         title: `Map: ${mapToBePlayed}`,
         thumbnail: finalEmbedThumbnailUrl ? finalEmbedThumbnailUrl : defaultEmbedThumbnailUrl,
         redTeamField: {
-            name: redTeamEmojiId,
+            name: `${redTeamEmojiId !== "" ? redTeamEmojiId : redTeamEmojiName} ${redTeamName}`,
             value: redTeam.players.length > 0 ? redTeam.players : "Something is wrong. Contact an Admin.",
             inline: true
         },
         blueTeamField: {
-            name: blueTeamEmojiId,
+            name: `${blueTeamEmojiId !== "" ? blueTeamEmojiId : blueTeamEmojiName} ${blueTeamName}`,
             value: blueTeam.players.length > 0 ? blueTeam.players : "Something is wrong. Contact an Admin.",
             inline: true
         }

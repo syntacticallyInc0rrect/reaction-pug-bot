@@ -1,8 +1,8 @@
 import {MessageEmbed, MessageReaction, PartialUser, StringResolvable, User} from "discord.js";
 import {
-    admins,
+    admins, blueTeamEmojiId,
     blueTeamEmojiIdNum,
-    blueTeamEmojiName,
+    blueTeamEmojiName, blueTeamName,
     BotAction,
     BotActionOptions,
     channelFullPath,
@@ -13,9 +13,9 @@ import {
     directMessageThumbnailUrl,
     directMessageTitle,
     getTeamName,
-    matchSize,
+    matchSize, redTeamEmojiId,
     redTeamEmojiIdNum,
-    redTeamEmojiName,
+    redTeamEmojiName, redTeamName,
     resetPugEmojiName,
     resetTeamsEmojiName,
     TeamNameOptions,
@@ -94,12 +94,12 @@ const getTeamsEmbedProps = (): TeamsEmbedProps => {
         title: teamsEmbedTitle,
         thumbnail: teamsEmbedThumbnailUrl ? teamsEmbedThumbnailUrl : defaultEmbedThumbnailUrl,
         redTeamField: {
-            name: "Map Pool",
+            name: `${redTeamEmojiId !== "" ? redTeamEmojiId : redTeamEmojiName} ${redTeamName}`,
             value: getRedTeamPlayers().length > 0 ? getRedTeamPlayers() : defaultValueForEmptyTeam,
             inline: true
         },
         blueTeamField: {
-            name: "In Queue",
+            name: `${blueTeamEmojiId !== "" ? blueTeamEmojiId : blueTeamEmojiName} ${blueTeamName}`,
             value: getBlueTeamPlayers().length > 0 ? getBlueTeamPlayers() : defaultValueForEmptyTeam,
             inline: true
         },
