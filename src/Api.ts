@@ -151,7 +151,7 @@ export const admins: string[] | undefined = process.env.ADMINS ? process.env.ADM
 export const resetTeamsEmojiName: string = process.env.RESET_TEAMS_EMOJI_NAME ? process.env.RESET_TEAMS_EMOJI_NAME : "♻️";
 export const resetTeamsEmojiId: string = process.env.RESET_TEAMS_EMOJI_NAME ? process.env.RESET_TEAMS_EMOJI_NAME : "";
 export const resetTeamsEmojiIdNum: string = process.env.RESET_TEAMS_EMOJI_NAME ? process.env.RESET_TEAMS_EMOJI_NAME : "";
-export const resetPugEmojiName: string = process.env.RESET_PUG_EMOJI_NAME ? process.env.RESET_PUG_EMOJI_NAME : "⛔";
+export const resetPugEmojiName: string = process.env.RESET_PUG_EMOJI_NAME ? process.env.RESET_PUG_EMOJI_NAME : "⏮️";
 export const resetPugEmojiId: string = process.env.RESET_PUT_EMOJI_ID ? process.env.RESET_PUT_EMOJI_ID : "";
 export const resetPugEmojiIdNum: string = process.env.RESET_PUG_EMOJI_ID_NUM ? process.env.RESET_PUG_EMOJI_ID_NUM : "";
 
