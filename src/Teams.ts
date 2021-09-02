@@ -48,7 +48,6 @@ export let unassignedPlayers: (User | PartialUser)[] = [];
 const redTeamReaction: string = redTeamEmojiIdNum !== "" ? redTeamEmojiIdNum : redTeamEmojiName;
 const blueTeamReaction: string = blueTeamEmojiIdNum !== "" ? blueTeamEmojiIdNum : blueTeamEmojiName;
 
-//TODO can these object instances be consts and still have their values changes? Probably...
 export const redTeam: Team = new Team(
     getTeamName(TeamNameOptions.red),
     [],
