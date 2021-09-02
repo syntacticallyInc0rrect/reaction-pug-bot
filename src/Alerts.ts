@@ -19,12 +19,13 @@ type AlertEmbedProps = {
 }
 
 const getAlertEmbedProps = (): AlertEmbedProps => {
-    //TODO: make name and value customizable
+    //TODO: make title, name and value customizable
+    const title: string = 'You have been queued for more than 2 hours.'
     const name: string = `If you do not remove and re-add your reaction within 15 minutes of this message, you may be automatically removed from the queue.`;
     const value: string = `If you wish to reset your queue idle time, please go [here](${channelFullPath}) to remove and replace your reaction.\nOtherwise, feel free to re-queue whenever! :)`
     return {
         color: defaultEmbedColor,
-        title: teamsEmbedTitle,
+        title: title,
         timestamp: new Date(),
         thumbnail: alertEmbedThumbnailUrl ? alertEmbedThumbnailUrl : defaultEmbedThumbnailUrl,
         alertField: {name: name, value: value, inline: false}
