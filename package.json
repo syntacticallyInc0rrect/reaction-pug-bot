@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc",
-    "start": "node ./bin/Bot.js",
+    "start": "tsc && node ./bin/Bot.js",
     "dev": "ts-node ./src/Bot.ts",
     "test": "jest"
   },
