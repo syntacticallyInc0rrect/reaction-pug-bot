@@ -1,8 +1,10 @@
 import {MessageEmbed, MessageReaction, PartialUser, StringResolvable, User} from "discord.js";
 import {
-    admins, blueTeamEmojiId,
+    admins,
+    blueTeamEmojiId,
     blueTeamEmojiIdNum,
-    blueTeamEmojiName, blueTeamName,
+    blueTeamEmojiName,
+    blueTeamName,
     BotAction,
     BotActionOptions,
     channelFullPath,
@@ -13,9 +15,11 @@ import {
     directMessageThumbnailUrl,
     directMessageTitle,
     getTeamName,
-    matchSize, redTeamEmojiId,
+    matchSize,
+    redTeamEmojiId,
     redTeamEmojiIdNum,
-    redTeamEmojiName, redTeamName,
+    redTeamEmojiName,
+    redTeamName,
     resetPugEmojiName,
     resetTeamsEmojiName,
     TeamNameOptions,
@@ -25,7 +29,7 @@ import {
 } from "./Api";
 import {EmbedField, Queue, queuedPlayers, removeReaction} from "./Queue";
 import {Hourglass, suggestedMaps} from "./Hourglass";
-import {textChannel} from "./Bot";
+import {guild, textChannel} from "./Bot";
 import {Maps} from "./Maps";
 
 export let tmMsgId: string;
@@ -85,6 +89,9 @@ export const wipeTeams = () => {
 const getUnassignedPlayers = (): (User | PartialUser)[] => unassignedPlayers;
 const getRedTeamPlayers = (): (User | PartialUser)[] => redTeam.players;
 const getBlueTeamPlayers = (): (User | PartialUser)[] => blueTeam.players;
+
+export let redTeamVoiceChannelId: string;
+export let blueTeamVoiceChannelId: string;
 
 const getTeamsEmbedProps = (): TeamsEmbedProps => {
     return {
@@ -153,6 +160,39 @@ const sendInitialTeamsEmbed = (reaction: MessageReaction, props: TeamsEmbedProps
 
 };
 
+const createPugChannels = (): void => {
+    const movePlayersToTeamVoiceChannels = () => {
+        guild.members.cache.forEach(m => {
+            if (!m.voice.channel) return;
+            if (getRedTeamPlayers().find(p => p.id === m.id)) {
+                m.voice.setChannel(redTeamVoiceChannelId);
+            }
+            if (getBlueTeamPlayers().find(p => p.id === m.id)) {
+                m.voice.setChannel(blueTeamVoiceChannelId);
+            }
+        });
+    };
+
+    // increasePugCount();
+
+    // guild.channels.create(`PUG #${pugCount}`, {
+    guild.channels.create(`Current PUG`, {
+        type: "category"
+    }).then(c => {
+        guild.channels.create(` 🎮 ${redTeamName}`, {
+            parent: c,
+            type: "voice"
+        }).then(c => redTeamVoiceChannelId = c.id);
+        guild.channels.create(` 🎮 ${blueTeamName}`, {
+            parent: c,
+            type: "voice"
+        }).then(c => {
+            blueTeamVoiceChannelId = c.id;
+            movePlayersToTeamVoiceChannels();
+        })
+    });
+};
+
 const updateTeams = (reaction: MessageReaction, teamsReset: boolean) => {
     reaction.message.edit(buildTeamsEmbed(getTeamsEmbedProps())).then(m => {
         tmMsgId = m.id;
@@ -174,7 +214,6 @@ const resetPug = (reaction: MessageReaction) => {
     queuedPlayers.splice(0, queuedPlayers.length);
     reaction.message.delete().then(() => {
         Queue(BotActionOptions.initialize);
-        Hourglass();
     })
 
 };
@@ -212,7 +251,10 @@ const handleReactionAdd = (reaction: MessageReaction, user: User | PartialUser) 
             myTeamPlayers === redTeam.players ? redTeam.players.push(user) : blueTeam.players.push(user);
             unassignedPlayers.splice(unassignedPlayers.indexOf(user), 1);
             if (checkIfTeamsAreFull()) {
-                reaction.message.delete().then(() => Maps(BotActionOptions.initialize, reaction, user));
+                reaction.message.delete().then(() => {
+                    createPugChannels();
+                    Maps(BotActionOptions.initialize, reaction, user)
+                });
             } else {
                 updateTeams(reaction, false);
             }

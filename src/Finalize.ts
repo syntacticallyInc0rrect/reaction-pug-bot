@@ -1,17 +1,22 @@
 import {
     admins,
-    blueTeamEmojiId, blueTeamEmojiName, blueTeamName,
+    blueTeamEmojiId,
+    blueTeamEmojiName,
+    blueTeamName,
     BotAction,
     BotActionOptions,
     defaultEmbedColor,
     defaultEmbedThumbnailUrl,
     finalEmbedThumbnailUrl,
-    redTeamEmojiId, redTeamEmojiName, redTeamName,
+    finishPugEmojiName,
+    redTeamEmojiId,
+    redTeamEmojiName,
+    redTeamName,
     resetPugEmojiName
 } from "./Api";
 import {Message, MessageEmbed, MessageReaction, PartialUser, StringResolvable, User} from "discord.js";
-import {blueTeam, redTeam, wipeTeams} from "./Teams";
-import {textChannel} from "./Bot";
+import {blueTeam, blueTeamVoiceChannelId, redTeam, redTeamVoiceChannelId, wipeTeams} from "./Teams";
+import {guild, queueVoiceChannelId, textChannel} from "./Bot";
 import {EmbedField, Queue, removeReaction} from "./Queue";
 import {Hourglass} from "./Hourglass";
 import {resetMapToBePlayed} from "./Maps";
@@ -55,6 +60,21 @@ const buildFinalEmbed = (props: FinalEmbedProps): MessageEmbed => {
         .addFields(props.redTeamField, props.blueTeamField);
 };
 
+const movePlayersBackToQueueVoiceChannel = (): void => {
+    !!guild.channels.cache.get(redTeamVoiceChannelId) &&
+    guild.channels.cache.get(redTeamVoiceChannelId)?.members.forEach(m => {
+        m.voice.setChannel(queueVoiceChannelId);
+    });
+    !!guild.channels.cache.get(blueTeamVoiceChannelId) &&
+    guild.channels.cache.get(blueTeamVoiceChannelId)?.members.forEach(m => {
+        m.voice.setChannel(queueVoiceChannelId);
+    });
+    guild.channels.cache.get(redTeamVoiceChannelId)?.delete();
+    guild.channels.cache.get(blueTeamVoiceChannelId)?.delete();
+    guild.channels.cache.get(redTeamVoiceChannelId)?.parent?.delete();
+
+};
+
 export const Finalize = (
     action: BotAction,
     msgId: string,
@@ -72,7 +92,7 @@ export const Finalize = (
         getMessage().delete().then(() => {
             textChannel.send(buildFinalEmbed(getFinalEmbedProps(mapToBePlayed))).then(m => {
                 finalMsgId = m.id;
-                m.react(resetPugEmojiName);
+                m.react(finishPugEmojiName);
             })
         });
 
@@ -87,11 +107,19 @@ export const Finalize = (
         if (playerIsInThisPug || isAdmin) {
             if (reaction.emoji.name === resetPugEmojiName) {
                 reaction.message.delete().then(() => {
+                    movePlayersBackToQueueVoiceChannel();
+                    wipeTeams();
+                    resetMapToBePlayed();
+                    Queue(BotActionOptions.initialize);
+                });
+            } else if (reaction.emoji.name === finishPugEmojiName) {
+                reaction.message.delete().then(() => {
+                    movePlayersBackToQueueVoiceChannel();
                     wipeTeams();
                     resetMapToBePlayed();
                     Queue(BotActionOptions.initialize);
                     Hourglass();
-                })
+                });
             } else {
                 removeReaction(reaction, user);
             }

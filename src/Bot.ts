@@ -1,4 +1,4 @@
-import {Channel, Client, Guild, GuildResolvable, MessageReaction, PartialUser, TextChannel, User} from "discord.js";
+import {Channel, Client, Guild, MessageReaction, PartialUser, TextChannel, User} from "discord.js";
 import {Alerts} from "./Alerts";
 import {BotActionOptions, botToken, timeToRespond} from "./Api";
 import {Hourglass} from "./Hourglass";
@@ -10,7 +10,13 @@ import {Finalize, finalMsgId} from "./Finalize";
 export const client: Client = new Client();
 export let channelId: string;
 export let discordId: string;
+// export let pugCount: number = 0;
 let channelCategoryId: string;
+export let queueVoiceChannelId: string;
+
+// export const increasePugCount = (): void => {
+//     pugCount++
+// };
 
 const getGuild = (): Guild => {
     const maybeGuild: Guild | undefined = client.guilds.cache.first();
@@ -21,7 +27,7 @@ const getGuild = (): Guild => {
     throw new Error("Your bot must be invited into a Discord Guild before trying to run it.");
 };
 
-let guild: Guild;
+export let guild: Guild;
 
 export const getChannel = (): Channel => {
     const channel = client.channels.cache.get(channelId);
@@ -58,10 +64,11 @@ const initializeBot = () => {
         guild.channels.create("PUG Queue", {
             parent: c,
             type: "voice"
-        }).then(() => {
-            textChannel = getTextChannel(getChannel());
-            Queue(BotActionOptions.initialize);
-            Hourglass();
+        }).then(c => {
+                queueVoiceChannelId = c.id;
+                textChannel = getTextChannel(getChannel());
+                Queue(BotActionOptions.initialize);
+                Hourglass();
             }
         );
     });
