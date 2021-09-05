@@ -1,6 +1,6 @@
-import {Channel, Client, MessageReaction, PartialUser, TextChannel, User} from "discord.js";
+import {Channel, Client, Guild, GuildResolvable, MessageReaction, PartialUser, TextChannel, User} from "discord.js";
 import {Alerts} from "./Alerts";
-import {BotActionOptions, botName, botToken, channelId, timeToRespond} from "./Api";
+import {BotActionOptions, botToken, timeToRespond} from "./Api";
 import {Hourglass} from "./Hourglass";
 import {Queue, queuedPlayers, queueMsgId} from "./Queue";
 import {Teams, tmMsgId} from "./Teams";
@@ -8,6 +8,20 @@ import {mapMsgId, Maps, mapToBePlayed} from "./Maps";
 import {Finalize, finalMsgId} from "./Finalize";
 
 export const client: Client = new Client();
+export let channelId: string;
+export let discordId: string;
+let channelCategoryId: string;
+
+const getGuild = (): Guild => {
+    const maybeGuild: Guild | undefined = client.guilds.cache.first();
+    if (!!maybeGuild) {
+        discordId = maybeGuild.id;
+        return maybeGuild;
+    }
+    throw new Error("Your bot must be invited into a Discord Guild before trying to run it.");
+};
+
+let guild: Guild;
 
 export const getChannel = (): Channel => {
     const channel = client.channels.cache.get(channelId);
@@ -25,26 +39,50 @@ export const getTextChannel = (channel: Channel): TextChannel => {
 
 export let textChannel: TextChannel;
 
+const initializeBot = () => {
+    guild = getGuild();
+    guild.channels.create("PUG TEST", {
+        type: "category"
+    }).then(c => {
+        channelCategoryId = c.id;
+        guild.channels.create("PUG BOT", {
+            parent: c,
+            type: "text"
+        }).then(c => {
+            channelId = c.id
+        });
+        guild.channels.create("PUG CHAT", {
+            parent: c,
+            type: "text"
+        });
+        guild.channels.create("PUG Queue", {
+            parent: c,
+            type: "voice"
+        }).then(() => {
+            textChannel = getTextChannel(getChannel());
+            Queue(BotActionOptions.initialize);
+            Hourglass();
+            }
+        );
+    });
+
+};
+
 client.login(botToken).then(() => {
     setInterval(() => !!queuedPlayers && Alerts(), timeToRespond);
     console.log(`BOT_TOKEN Authenticated at ${new Date()}`);
 });
 
 client.on('ready', () => {
-    textChannel = getTextChannel(getChannel());
-    Queue(BotActionOptions.initialize);
-    Hourglass();
+    initializeBot();
 });
 
 client.on('messageReactionAdd', (
     reaction: MessageReaction,
     user: User | PartialUser
 ) => {
-    const isUserTheBot = user.username == botName;
-    const isMessageFromBot = reaction.message.id === queueMsgId ||
-        reaction.message.id === tmMsgId ||
-        reaction.message.id === mapMsgId ||
-        reaction.message.id === finalMsgId;
+    const isUserTheBot = user.bot;
+    const isMessageFromBot = reaction.message.author.bot;
 
     if (!isUserTheBot && isMessageFromBot) {
         switch (reaction.message.id) {

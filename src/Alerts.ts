@@ -4,7 +4,6 @@ import {
     channelFullPath,
     defaultEmbedColor,
     defaultEmbedThumbnailUrl,
-    teamsEmbedTitle,
     timeToAlert
 } from "./Api";
 import {EmbedField, Queue, queuedPlayers} from "./Queue";
