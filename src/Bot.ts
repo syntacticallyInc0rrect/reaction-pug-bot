@@ -58,13 +58,20 @@ export let textChannel: TextChannel;
 
 const initializeBot = () => {
     guild = getGuild();
-    guild.channels.create("PUG TEST", {
+    guild.channels.create("PUG", {
         type: "category"
     }).then(c => {
-        // channelCategoryId = c.id;
+        const everyoneRole = guild.roles.cache.find(r => r.name === '@everyone');
         guild.channels.create("PUG BOT", {
             parent: c,
-            type: "text"
+            type: "text",
+            permissionOverwrites: [
+                {
+                    id: everyoneRole!.id,
+                    deny: ['SEND_MESSAGES'],
+                    allow: ['VIEW_CHANNEL', 'ADD_REACTIONS']
+                },
+            ],
         }).then(c => {
             channelId = c.id
         });
