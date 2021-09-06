@@ -17,11 +17,11 @@ import {Message, MessageEmbed, MessageReaction, PartialUser, StringResolvable, U
 import {blueTeam, redTeam, Team, wipeTeams} from "./Teams";
 import {
     guild,
-    pugVoiceChannels,
+    activePugs,
     queueVoiceChannelId,
-    removePugVoiceChannel,
+    removeActivePug,
     textChannel,
-    updatePugVoiceChannelMessageId
+    updateActivePugMessageId
 } from "./Bot";
 import {EmbedField, Queue, removeReaction} from "./Queue";
 import {Hourglass} from "./Hourglass";
@@ -66,9 +66,9 @@ const buildFinalEmbed = (props: FinalEmbedProps): MessageEmbed => {
 
 const getVoiceChannelId = (team: Team, messageId: string): string => {
     return team === redTeam ?
-        pugVoiceChannels.find(p => p.messageId === messageId)!.redTeamChannelId :
+        activePugs.find(p => p.messageId === messageId)!.redTeamChannelId :
         team === blueTeam ?
-            pugVoiceChannels.find(p => p.messageId === messageId)!.blueTeamChannelId :
+            activePugs.find(p => p.messageId === messageId)!.blueTeamChannelId :
             "";
 };
 
@@ -91,7 +91,7 @@ const movePlayersBackToQueueVoiceChannel = (messageId: string) => {
     });
 
     deleteOldVoiceChannels(messageId);
-    removePugVoiceChannel(messageId);
+    removeActivePug(messageId);
 
 };
 
@@ -130,7 +130,7 @@ export const Finalize = (
         getMessage().delete().then(() => {
             textChannel.send(buildFinalEmbed(getFinalEmbedProps(mapToBePlayed))).then(m => {
                 m.react(finishPugEmojiName).then(() => {
-                    updatePugVoiceChannelMessageId(m.id);
+                    updateActivePugMessageId(m.id);
                     wipeTeams();
                     resetMapToBePlayed();
                     Queue(BotActionOptions.initialize);
@@ -143,11 +143,11 @@ export const Finalize = (
 
     const handleReactionAdd = (reaction?: MessageReaction, user?: User | PartialUser) => {
         if (!reaction || !user) throw Error("Tried to add a Reaction to the Finalize Embed without a Reaction or a User.")
-        const redTeamPlayers = pugVoiceChannels[
-            pugVoiceChannels.findIndex(p => p.messageId === reaction.message.id)
+        const redTeamPlayers = activePugs[
+            activePugs.findIndex(p => p.messageId === reaction.message.id)
             ].redTeamPlayers;
-        const blueTeamPlayers = pugVoiceChannels[
-            pugVoiceChannels.findIndex(p => p.messageId === reaction.message.id)
+        const blueTeamPlayers = activePugs[
+            activePugs.findIndex(p => p.messageId === reaction.message.id)
             ].blueTeamPlayers;
         const playerIsInThisPug: boolean = !!redTeamPlayers.find(u => u === user) ||
             !!blueTeamPlayers.find(u => u === user);

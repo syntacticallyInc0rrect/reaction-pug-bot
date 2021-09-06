@@ -1,6 +1,6 @@
 import {Channel, Client, Guild, MessageReaction, PartialUser, TextChannel, User} from "discord.js";
 import {Alerts} from "./Alerts";
-import {BotActionOptions, botToken, finishPugEmojiName, PugVoiceChannel, timeToRespond} from "./Api";
+import {BotActionOptions, botToken, finishPugEmojiName, ActivePug, timeToRespond} from "./Api";
 import {Hourglass} from "./Hourglass";
 import {Queue, queuedPlayers, queueMsgId, removeReaction} from "./Queue";
 import {Teams, tmMsgId} from "./Teams";
@@ -13,18 +13,18 @@ export let channelId: string;
 export let discordId: string;
 export let pugCount: bigint = BigInt(0);
 export let queueVoiceChannelId: string;
-export let pugVoiceChannels: PugVoiceChannel[] = [];
+export let activePugs: ActivePug[] = [];
 
-export const addPugVoiceChannel = (props: PugVoiceChannel) => {
-    pugVoiceChannels.push(props);
+export const addActivePug = (props: ActivePug) => {
+    activePugs.push(props);
 };
 
-export const removePugVoiceChannel = (messageId: string) => {
-    pugVoiceChannels.splice(pugVoiceChannels.findIndex(p => p.messageId === messageId), 1);
+export const removeActivePug = (messageId: string) => {
+    activePugs.splice(activePugs.findIndex(p => p.messageId === messageId), 1);
 };
 
-export const updatePugVoiceChannelMessageId = (messageId: string) => {
-    pugVoiceChannels[pugVoiceChannels.findIndex(p => p.id === pugCount)].messageId = messageId;
+export const updateActivePugMessageId = (messageId: string) => {
+    activePugs[activePugs.findIndex(p => p.id === pugCount)].messageId = messageId;
 };
 
 export const increasePugCount = () => {
@@ -122,7 +122,7 @@ client.on('messageReactionAdd', (
                 break;
             default:
                 if (reaction.emoji.name === finishPugEmojiName) {
-                    if (!!pugVoiceChannels.find(p => p.messageId === reaction.message.id)) {
+                    if (!!activePugs.find(p => p.messageId === reaction.message.id)) {
                         Finalize(BotActionOptions.reactionAdd, reaction.message.id, mapToBePlayed, reaction, user);
                     }
                 } else {

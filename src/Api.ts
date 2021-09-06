@@ -4,7 +4,7 @@ import {PartialUser, User} from "discord.js";
 
 dotenv.config();
 
-export type PugVoiceChannel = {
+export type ActivePug = {
     id: bigint,
     redTeamChannelId: string,
     blueTeamChannelId: string,

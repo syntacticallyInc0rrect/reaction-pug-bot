@@ -13,7 +13,7 @@ import {
     queueEmojiName,
     resetPugEmojiName
 } from "./Api";
-import {pugVoiceChannels, textChannel} from "./Bot";
+import {activePugs, textChannel} from "./Bot";
 import {Teams} from "./Teams";
 import {Hourglass} from "./Hourglass";
 
@@ -66,8 +66,8 @@ const handleReactionAdd = (reaction?: MessageReaction, user?: User | PartialUser
 
     if (reaction.emoji.name === queueEmojiName) {
         const userAlreadyExistsInQueue = !!queuedPlayers && !!queuedPlayers.find(qp => qp.user === user);
-        const userAlreadyExistsInActivePug = !!pugVoiceChannels.find(p => p.redTeamPlayers.find(u => u === user)) ||
-            !!pugVoiceChannels.find(p => p.blueTeamPlayers.find(u => u === user));
+        const userAlreadyExistsInActivePug = !!activePugs.find(p => p.redTeamPlayers.find(u => u === user)) ||
+            !!activePugs.find(p => p.blueTeamPlayers.find(u => u === user));
 
         if (!userAlreadyExistsInQueue && !userAlreadyExistsInActivePug) {
             queuedPlayers.push({user: user, timestamp: new Date(), warned: false});

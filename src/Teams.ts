@@ -16,7 +16,7 @@ import {
     directMessageTitle,
     getTeamName,
     matchSize,
-    PugVoiceChannel,
+    ActivePug,
     redTeamEmojiId,
     redTeamEmojiIdNum,
     redTeamEmojiName,
@@ -30,7 +30,7 @@ import {
 } from "./Api";
 import {EmbedField, Queue, queuedPlayers, removeReaction} from "./Queue";
 import {suggestedMaps} from "./Hourglass";
-import {addPugVoiceChannel, guild, increasePugCount, pugCount, textChannel} from "./Bot";
+import {addActivePug, guild, increasePugCount, pugCount, textChannel} from "./Bot";
 import {Maps} from "./Maps";
 
 export let tmMsgId: string;
@@ -187,7 +187,7 @@ const createPugChannels = () => {
         }).then(c => {
             blueTeamVoiceChannelId = c.id;
             movePlayersToTeamVoiceChannels();
-            const pugVoiceChannel: PugVoiceChannel = {
+            const pugVoiceChannel: ActivePug = {
                 id: pugCount,
                 redTeamChannelId: redTeamVoiceChannelId,
                 blueTeamChannelId: blueTeamVoiceChannelId,
@@ -195,7 +195,7 @@ const createPugChannels = () => {
                 redTeamPlayers: getRedTeamPlayers(),
                 blueTeamPlayers: getBlueTeamPlayers()
             };
-            addPugVoiceChannel(pugVoiceChannel);
+            addActivePug(pugVoiceChannel);
         })
     });
 };
