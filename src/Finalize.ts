@@ -16,8 +16,9 @@ import {
 import {Message, MessageEmbed, MessageReaction, PartialUser, StringResolvable, User} from "discord.js";
 import {blueTeam, redTeam, Team, wipeTeams} from "./Teams";
 import {
-    guild,
     activePugs,
+    guild,
+    pugCount,
     queueVoiceChannelId,
     removeActivePug,
     textChannel,
@@ -33,7 +34,8 @@ type FinalEmbedProps = {
     title: StringResolvable,
     thumbnail: StringResolvable,
     redTeamField: EmbedField,
-    blueTeamField: EmbedField
+    blueTeamField: EmbedField,
+    footer: StringResolvable
 };
 
 const getFinalEmbedProps = (mapToBePlayed: string): FinalEmbedProps => {
@@ -51,7 +53,8 @@ const getFinalEmbedProps = (mapToBePlayed: string): FinalEmbedProps => {
             name: `${blueTeamEmojiId !== "" ? blueTeamEmojiId : blueTeamEmojiName} ${blueTeamName}`,
             value: blueTeam.players.length > 0 ? blueTeam.players : "Something is wrong. Contact an Admin.",
             inline: true
-        }
+        },
+        footer: `PUG #${pugCount}`
     };
 };
 
@@ -61,7 +64,8 @@ const buildFinalEmbed = (props: FinalEmbedProps): MessageEmbed => {
         .setColor(props.color)
         .setTitle(props.title)
         .setThumbnail(props.thumbnail)
-        .addFields(props.redTeamField, props.blueTeamField);
+        .addFields(props.redTeamField, props.blueTeamField)
+        .setFooter(props.footer);
 };
 
 const getVoiceChannelId = (team: Team, messageId: string): string => {
