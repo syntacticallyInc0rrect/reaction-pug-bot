@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 import {channelId, discordId} from "./Bot";
+import {PartialUser, User} from "discord.js";
 
 dotenv.config();
 
@@ -7,7 +8,9 @@ export type PugVoiceChannel = {
     id: bigint,
     redTeamChannelId: string,
     blueTeamChannelId: string,
-    messageId: string
+    messageId: string,
+    redTeamPlayers: (User | PartialUser)[],
+    blueTeamPlayers: (User | PartialUser)[]
 }
 
 export type BotAction = BotActionOptions;

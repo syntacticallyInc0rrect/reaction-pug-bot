@@ -15,7 +15,8 @@ import {
     directMessageThumbnailUrl,
     directMessageTitle,
     getTeamName,
-    matchSize, PugVoiceChannel,
+    matchSize,
+    PugVoiceChannel,
     redTeamEmojiId,
     redTeamEmojiIdNum,
     redTeamEmojiName,
@@ -190,7 +191,9 @@ const createPugChannels = () => {
                 id: pugCount,
                 redTeamChannelId: redTeamVoiceChannelId,
                 blueTeamChannelId: blueTeamVoiceChannelId,
-                messageId: ""
+                messageId: "",
+                redTeamPlayers: getRedTeamPlayers(),
+                blueTeamPlayers: getBlueTeamPlayers()
             };
             addPugVoiceChannel(pugVoiceChannel);
         })

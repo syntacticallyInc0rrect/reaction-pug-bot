@@ -1,6 +1,6 @@
 import {Channel, Client, Guild, MessageReaction, PartialUser, TextChannel, User} from "discord.js";
 import {Alerts} from "./Alerts";
-import {BotActionOptions, botToken, finishPugEmojiName, PugVoiceChannel, resetPugEmojiName, timeToRespond} from "./Api";
+import {BotActionOptions, botToken, finishPugEmojiName, PugVoiceChannel, timeToRespond} from "./Api";
 import {Hourglass} from "./Hourglass";
 import {Queue, queuedPlayers, queueMsgId, removeReaction} from "./Queue";
 import {Teams, tmMsgId} from "./Teams";
@@ -20,7 +20,7 @@ export const addPugVoiceChannel = (props: PugVoiceChannel) => {
 };
 
 export const removePugVoiceChannel = (messageId: string) => {
-  pugVoiceChannels.splice(pugVoiceChannels.findIndex(p => p.messageId === messageId), 1);
+    pugVoiceChannels.splice(pugVoiceChannels.findIndex(p => p.messageId === messageId), 1);
 };
 
 export const updatePugVoiceChannelMessageId = (messageId: string) => {
@@ -114,7 +114,7 @@ client.on('messageReactionAdd', (
                 Maps(BotActionOptions.reactionAdd, reaction, user);
                 break;
             default:
-                if (reaction.emoji.name === finishPugEmojiName || reaction.emoji.name === resetPugEmojiName) {
+                if (reaction.emoji.name === finishPugEmojiName) {
                     if (!!pugVoiceChannels.find(p => p.messageId === reaction.message.id)) {
                         Finalize(BotActionOptions.reactionAdd, reaction.message.id, mapToBePlayed, reaction, user);
                     }

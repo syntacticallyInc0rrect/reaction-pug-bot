@@ -11,8 +11,7 @@ import {
     finishPugEmojiName,
     redTeamEmojiId,
     redTeamEmojiName,
-    redTeamName,
-    resetPugEmojiName
+    redTeamName
 } from "./Api";
 import {Message, MessageEmbed, MessageReaction, PartialUser, StringResolvable, User} from "discord.js";
 import {blueTeam, redTeam, Team, wipeTeams} from "./Teams";
@@ -123,38 +122,36 @@ export const Finalize = (
 
         getMessage().delete().then(() => {
             textChannel.send(buildFinalEmbed(getFinalEmbedProps(mapToBePlayed))).then(m => {
-                m.react(finishPugEmojiName).then(() => updatePugVoiceChannelMessageId(m.id));
-            })
-        });
-
-    };
-
-    const handleReactionAdd = (reaction?: MessageReaction, user?: User | PartialUser) => {
-        if (!reaction || !user) throw Error("Tried to add a Reaction to the Finalize Embed without a Reaction or a User.")
-        const playerIsInThisPug: boolean = !!redTeam.players.find(u => u === user) ||
-            !!blueTeam.players.find(u => u === user);
-        const isAdmin = !!admins && !!admins.find(u => user.presence && u.valueOf() === user.presence.userID);
-
-        if (playerIsInThisPug || isAdmin) {
-            if (reaction.emoji.name === resetPugEmojiName) {
-                movePlayersBackToQueueVoiceChannel(reaction.message.id);
-                deleteOldVoiceChannels(reaction.message.id);
-                removePugVoiceChannel(reaction.message.id);
-                reaction.message.delete().then(() => {
-                    wipeTeams();
-                    resetMapToBePlayed();
-                    Queue(BotActionOptions.initialize);
-                });
-            } else if (reaction.emoji.name === finishPugEmojiName) {
-                movePlayersBackToQueueVoiceChannel(reaction.message.id);
-                deleteOldVoiceChannels(reaction.message.id);
-                removePugVoiceChannel(reaction.message.id);
-                reaction.message.delete().then(() => {
+                m.react(finishPugEmojiName).then(() => {
+                    updatePugVoiceChannelMessageId(m.id);
                     wipeTeams();
                     resetMapToBePlayed();
                     Queue(BotActionOptions.initialize);
                     Hourglass();
                 });
+            });
+
+        });
+    };
+
+    const handleReactionAdd = (reaction?: MessageReaction, user?: User | PartialUser) => {
+        if (!reaction || !user) throw Error("Tried to add a Reaction to the Finalize Embed without a Reaction or a User.")
+        const redTeamPlayers = pugVoiceChannels[
+            pugVoiceChannels.findIndex(p => p.messageId === reaction.message.id)
+            ].redTeamPlayers;
+        const blueTeamPlayers = pugVoiceChannels[
+            pugVoiceChannels.findIndex(p => p.messageId === reaction.message.id)
+            ].blueTeamPlayers;
+        const playerIsInThisPug: boolean = !!redTeamPlayers.find(u => u === user) ||
+            !!blueTeamPlayers.find(u => u === user);
+        const isAdmin = !!admins && !!admins.find(u => user.presence && u.valueOf() === user.presence.userID);
+
+        if (playerIsInThisPug || isAdmin) {
+            if (reaction.emoji.name === finishPugEmojiName) {
+                movePlayersBackToQueueVoiceChannel(reaction.message.id);
+                deleteOldVoiceChannels(reaction.message.id);
+                removePugVoiceChannel(reaction.message.id);
+                reaction.message.delete().then();
             } else {
                 removeReaction(reaction, user);
             }
