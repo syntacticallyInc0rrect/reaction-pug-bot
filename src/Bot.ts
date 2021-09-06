@@ -1,11 +1,11 @@
 import {Channel, Client, Guild, MessageReaction, PartialUser, TextChannel, User} from "discord.js";
 import {Alerts} from "./Alerts";
-import {BotActionOptions, botToken, PugVoiceChannel, timeToRespond} from "./Api";
+import {BotActionOptions, botToken, finishPugEmojiName, PugVoiceChannel, resetPugEmojiName, timeToRespond} from "./Api";
 import {Hourglass} from "./Hourglass";
-import {Queue, queuedPlayers, queueMsgId} from "./Queue";
+import {Queue, queuedPlayers, queueMsgId, removeReaction} from "./Queue";
 import {Teams, tmMsgId} from "./Teams";
 import {mapMsgId, Maps, mapToBePlayed} from "./Maps";
-import {Finalize, finalMsgId} from "./Finalize";
+import {Finalize} from "./Finalize";
 
 export const client: Client = new Client();
 export let guild: Guild;
@@ -19,8 +19,8 @@ export const addPugVoiceChannel = (props: PugVoiceChannel) => {
     pugVoiceChannels.push(props);
 };
 
-export const removePugVoiceChannel = () => {
-  pugVoiceChannels.splice(pugVoiceChannels.findIndex(p => p.id === pugCount), 1);
+export const removePugVoiceChannel = (messageId: string) => {
+  pugVoiceChannels.splice(pugVoiceChannels.findIndex(p => p.messageId === messageId), 1);
 };
 
 export const updatePugVoiceChannelMessageId = (messageId: string) => {
@@ -113,11 +113,14 @@ client.on('messageReactionAdd', (
             case mapMsgId:
                 Maps(BotActionOptions.reactionAdd, reaction, user);
                 break;
-                //todo this won't work with double PUGs
-            case finalMsgId:
-                Finalize(BotActionOptions.reactionAdd, finalMsgId, mapToBePlayed, reaction, user);
-                break;
             default:
+                if (reaction.emoji.name === finishPugEmojiName || reaction.emoji.name === resetPugEmojiName) {
+                    if (!!pugVoiceChannels.find(p => p.messageId === reaction.message.id)) {
+                        Finalize(BotActionOptions.reactionAdd, reaction.message.id, mapToBePlayed, reaction, user);
+                    }
+                } else {
+                    removeReaction(reaction, user);
+                }
                 break;
         }
     }
