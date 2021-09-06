@@ -94,8 +94,10 @@ const movePlayersBackToQueueVoiceChannel = (messageId: string) => {
         }
     });
 
-    deleteOldVoiceChannels(messageId);
-    removeActivePug(messageId);
+    setTimeout(() => {
+        deleteOldVoiceChannels(messageId);
+        removeActivePug(messageId);
+    }, 5000);
 
 };
 
