@@ -61,7 +61,7 @@ export const botToken: string = getBotToken();
 
 export const mapPool: string[] = getMapPool();
 
-export const channelFullPath = `https://discord.com/channels/${discordId}/${channelId}`
+export const getChannelFullPath = (): string => `https://discord.com/channels/${discordId}/${channelId}`
 export const defaultValueForEmptyTeam: string = process.env.DEFAULT_VALUE_FOR_EMPTY_TEAM ? process.env.DEFAULT_VALUE_FOR_EMPTY_TEAM : "waiting on first player";
 
 export const queueEmojiName: string = process.env.QUEUE_EMOJI_NAME ? process.env.QUEUE_EMOJI_NAME : "🎮";

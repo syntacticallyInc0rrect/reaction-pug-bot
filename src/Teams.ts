@@ -1,5 +1,6 @@
 import {MessageEmbed, MessageReaction, PartialUser, StringResolvable, User} from "discord.js";
 import {
+    ActivePug,
     admins,
     blueTeamEmojiId,
     blueTeamEmojiIdNum,
@@ -7,16 +8,15 @@ import {
     blueTeamName,
     BotAction,
     BotActionOptions,
-    channelFullPath,
     defaultEmbedColor,
     defaultEmbedThumbnailUrl,
     defaultValueForEmptyTeam,
     directMessageName,
     directMessageThumbnailUrl,
     directMessageTitle,
+    getChannelFullPath,
     getTeamName,
     matchSize,
-    ActivePug,
     redTeamEmojiId,
     redTeamEmojiIdNum,
     redTeamEmojiName,
@@ -119,7 +119,7 @@ const getDirectMessageEmbedProps = (): DirectMessageEmbedProps => {
         thumbnail: directMessageThumbnailUrl ? directMessageThumbnailUrl : defaultEmbedThumbnailUrl,
         field: {
             name: directMessageName,
-            value: `Click [here](${channelFullPath}) to be taken back to the PUG Bot :)`,
+            value: `Click [here](${getChannelFullPath()}) to be taken back to the PUG Bot :)`,
             inline: false
         }
     }
