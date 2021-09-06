@@ -72,21 +72,26 @@ const getVoiceChannelId = (team: Team, messageId: string): string => {
             "";
 };
 
-const movePlayersBackToQueueVoiceChannel = async (messageId: string): Promise<void> => {
+const movePlayersBackToQueueVoiceChannel = (messageId: string) => {
     const redVoiceChannelId = getVoiceChannelId(redTeam, messageId);
     const blueVoiceChannelId = getVoiceChannelId(blueTeam, messageId);
 
     !!guild.channels.cache.get(redVoiceChannelId) &&
     guild.channels.cache.get(redVoiceChannelId)!.members.forEach(m => {
-        !!m.voice.channel &&
-        m.voice.setChannel(queueVoiceChannelId).then(() => {
-            !!guild.channels.cache.get(blueVoiceChannelId) &&
-            guild.channels.cache.get(blueVoiceChannelId)!.members.forEach(m => {
-                !!m.voice.channel &&
-                m.voice.setChannel(queueVoiceChannelId).then(() => Promise.resolve());
-            });
-        });
+        if (!!m.voice.channel) {
+            m.voice.setChannel(queueVoiceChannelId).catch(e => console.log(e.message));
+        }
     });
+
+    !!guild.channels.cache.get(blueVoiceChannelId) &&
+    guild.channels.cache.get(blueVoiceChannelId)!.members.forEach(m => {
+        if (!!m.voice.channel) {
+            m.voice.setChannel(queueVoiceChannelId).catch(e => console.log(e.message));
+        }
+    });
+
+    deleteOldVoiceChannels(messageId);
+    removePugVoiceChannel(messageId);
 
 };
 
@@ -150,11 +155,8 @@ export const Finalize = (
 
         if (playerIsInThisPug || isAdmin) {
             if (reaction.emoji.name === finishPugEmojiName) {
-                movePlayersBackToQueueVoiceChannel(reaction.message.id).then(() => {
-                    deleteOldVoiceChannels(reaction.message.id);
-                    removePugVoiceChannel(reaction.message.id);
-                    reaction.message.delete().then();
-                });
+                movePlayersBackToQueueVoiceChannel(reaction.message.id);
+                reaction.message.delete().then();
             } else {
                 removeReaction(reaction, user);
             }
