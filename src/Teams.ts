@@ -28,7 +28,7 @@ import {
     teamSize
 } from "./Api";
 import {EmbedField, Queue, queuedPlayers, removeReaction} from "./Queue";
-import {Hourglass, suggestedMaps} from "./Hourglass";
+import {suggestedMaps} from "./Hourglass";
 import {guild, textChannel} from "./Bot";
 import {Maps} from "./Maps";
 
@@ -163,12 +163,13 @@ const sendInitialTeamsEmbed = (reaction: MessageReaction, props: TeamsEmbedProps
 const createPugChannels = (): void => {
     const movePlayersToTeamVoiceChannels = () => {
         guild.members.cache.forEach(m => {
-            if (!m.voice.channel) return;
-            if (getRedTeamPlayers().find(p => p.id === m.id)) {
-                m.voice.setChannel(redTeamVoiceChannelId);
-            }
-            if (getBlueTeamPlayers().find(p => p.id === m.id)) {
-                m.voice.setChannel(blueTeamVoiceChannelId);
+            if (m.voice.channel) {
+                if (getRedTeamPlayers().find(p => p.id === m.id)) {
+                    m.voice.setChannel(redTeamVoiceChannelId);
+                }
+                if (getBlueTeamPlayers().find(p => p.id === m.id)) {
+                    m.voice.setChannel(blueTeamVoiceChannelId);
+                }
             }
         });
     };
