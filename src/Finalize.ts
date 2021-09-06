@@ -15,8 +15,15 @@ import {
     resetPugEmojiName
 } from "./Api";
 import {Message, MessageEmbed, MessageReaction, PartialUser, StringResolvable, User} from "discord.js";
-import {blueTeam, blueTeamVoiceChannelId, redTeam, redTeamVoiceChannelId, wipeTeams} from "./Teams";
-import {guild, queueVoiceChannelId, textChannel} from "./Bot";
+import {blueTeam, redTeam, Team, wipeTeams} from "./Teams";
+import {
+    guild,
+    pugVoiceChannels,
+    queueVoiceChannelId,
+    removePugVoiceChannel,
+    textChannel,
+    updatePugVoiceChannelMessageId
+} from "./Bot";
 import {EmbedField, Queue, removeReaction} from "./Queue";
 import {Hourglass} from "./Hourglass";
 import {resetMapToBePlayed} from "./Maps";
@@ -60,30 +67,47 @@ const buildFinalEmbed = (props: FinalEmbedProps): MessageEmbed => {
         .addFields(props.redTeamField, props.blueTeamField);
 };
 
+const getVoiceChannelId = (team: Team): string => {
+    return team === redTeam ?
+        pugVoiceChannels.find(p => p.messageId === finalMsgId)!.redTeamChannelId :
+        team === blueTeam ?
+            pugVoiceChannels.find(p => p.messageId === finalMsgId)!.blueTeamChannelId :
+            "";
+};
+
 const movePlayersBackToQueueVoiceChannel = () => {
-    !!guild.channels.cache.get(redTeamVoiceChannelId) &&
-        guild.channels.cache.get(redTeamVoiceChannelId)?.members.forEach(m => {
-            !!m.voice.channel &&
-                m.voice.setChannel(queueVoiceChannelId);
+    const redVoiceChannelId = getVoiceChannelId(redTeam);
+    const blueVoiceChannelId = getVoiceChannelId(blueTeam);
+
+    !!guild.channels.cache.get(redVoiceChannelId) &&
+    guild.channels.cache.get(redVoiceChannelId)!.members.forEach(m => {
+        !!m.voice.channel &&
+        m.voice.setChannel(queueVoiceChannelId);
     });
-    !!guild.channels.cache.get(blueTeamVoiceChannelId) &&
-        guild.channels.cache.get(blueTeamVoiceChannelId)?.members.forEach(m => {
-            !!m.voice.channel &&
-                m.voice.setChannel(queueVoiceChannelId);
+    !!guild.channels.cache.get(blueVoiceChannelId) &&
+    guild.channels.cache.get(blueVoiceChannelId)!.members.forEach(m => {
+        !!m.voice.channel &&
+        m.voice.setChannel(queueVoiceChannelId);
     });
 };
 
-const deleteOldVoiceChannels = (): void => {
-    guild.channels.cache.get(redTeamVoiceChannelId) &&
-        guild.channels.cache.get(redTeamVoiceChannelId)?.parent &&
-            guild.channels.cache.get(redTeamVoiceChannelId)?.parent?.delete().then(
-        () => guild.channels.cache.get(redTeamVoiceChannelId) &&
-                guild.channels.cache.get(redTeamVoiceChannelId)?.delete().then(
-            () => guild.channels.cache.get(blueTeamVoiceChannelId) &&
-                guild.channels.cache.get(blueTeamVoiceChannelId)?.delete()
-        ));
+const deleteOldVoiceChannels = () => {
+    const redVoiceChannelId = getVoiceChannelId(redTeam);
+    const blueVoiceChannelId = getVoiceChannelId(blueTeam);
 
-}
+    !!guild.channels.cache.get(redVoiceChannelId) &&
+    !!guild.channels.cache.get(redVoiceChannelId)!.parent &&
+    guild.channels.cache.get(redVoiceChannelId)!.parent!.delete().then(
+        () => {
+            !!guild.channels.cache.get(redVoiceChannelId) &&
+            guild.channels.cache.get(redVoiceChannelId)!.delete().then(
+                () => {
+                    !!guild.channels.cache.get(blueVoiceChannelId) &&
+                    guild.channels.cache.get(blueVoiceChannelId)!.delete()
+                }
+            )
+        });
+};
 
 export const Finalize = (
     action: BotAction,
@@ -102,7 +126,7 @@ export const Finalize = (
         getMessage().delete().then(() => {
             textChannel.send(buildFinalEmbed(getFinalEmbedProps(mapToBePlayed))).then(m => {
                 finalMsgId = m.id;
-                m.react(finishPugEmojiName);
+                m.react(finishPugEmojiName).then(() => updatePugVoiceChannelMessageId(m.id));
             })
         });
 
@@ -119,6 +143,7 @@ export const Finalize = (
                 reaction.message.delete().then(() => {
                     movePlayersBackToQueueVoiceChannel();
                     deleteOldVoiceChannels();
+                    removePugVoiceChannel();
                     wipeTeams();
                     resetMapToBePlayed();
                     Queue(BotActionOptions.initialize);
@@ -127,6 +152,7 @@ export const Finalize = (
                 reaction.message.delete().then(() => {
                     movePlayersBackToQueueVoiceChannel();
                     deleteOldVoiceChannels();
+                    removePugVoiceChannel();
                     wipeTeams();
                     resetMapToBePlayed();
                     Queue(BotActionOptions.initialize);

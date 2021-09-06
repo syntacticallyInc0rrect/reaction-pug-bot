@@ -3,6 +3,13 @@ import {channelId, discordId} from "./Bot";
 
 dotenv.config();
 
+export type PugVoiceChannel = {
+    id: bigint,
+    redTeamChannelId: string,
+    blueTeamChannelId: string,
+    messageId: string
+}
+
 export type BotAction = BotActionOptions;
 
 export enum BotActionOptions {

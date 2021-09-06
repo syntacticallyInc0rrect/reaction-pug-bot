@@ -15,7 +15,7 @@ import {
     directMessageThumbnailUrl,
     directMessageTitle,
     getTeamName,
-    matchSize,
+    matchSize, PugVoiceChannel,
     redTeamEmojiId,
     redTeamEmojiIdNum,
     redTeamEmojiName,
@@ -29,7 +29,7 @@ import {
 } from "./Api";
 import {EmbedField, Queue, queuedPlayers, removeReaction} from "./Queue";
 import {suggestedMaps} from "./Hourglass";
-import {guild, textChannel} from "./Bot";
+import {addPugVoiceChannel, guild, increasePugCount, pugCount, textChannel} from "./Bot";
 import {Maps} from "./Maps";
 
 export let tmMsgId: string;
@@ -90,9 +90,6 @@ const getUnassignedPlayers = (): (User | PartialUser)[] => unassignedPlayers;
 const getRedTeamPlayers = (): (User | PartialUser)[] => redTeam.players;
 const getBlueTeamPlayers = (): (User | PartialUser)[] => blueTeam.players;
 
-export let redTeamVoiceChannelId: string;
-export let blueTeamVoiceChannelId: string;
-
 const getTeamsEmbedProps = (): TeamsEmbedProps => {
     return {
         author: `Suggested Map: ${suggestedMaps[1]}`,
@@ -152,32 +149,31 @@ const sendInitialTeamsEmbed = (reaction: MessageReaction, props: TeamsEmbedProps
     reaction.message.delete().then(() => {
         textChannel.send(buildTeamsEmbed(props)).then(m => {
             tmMsgId = m.id;
-            m.react(redTeamReaction);
-            m.react(blueTeamReaction);
-            sendDirectMessageToQueuedPlayers(getDirectMessageEmbedProps());
+            m.react(redTeamReaction).then();
+            m.react(blueTeamReaction).then(() => sendDirectMessageToQueuedPlayers(getDirectMessageEmbedProps()));
         });
-    })
-
+    });
 };
 
-const createPugChannels = (): void => {
+const createPugChannels = () => {
+    let redTeamVoiceChannelId: string;
+    let blueTeamVoiceChannelId: string;
     const movePlayersToTeamVoiceChannels = () => {
         guild.members.cache.forEach(m => {
             if (m.voice.channel) {
                 if (getRedTeamPlayers().find(p => p.id === m.id)) {
-                    m.voice.setChannel(redTeamVoiceChannelId);
+                    m.voice.setChannel(redTeamVoiceChannelId).then();
                 }
                 if (getBlueTeamPlayers().find(p => p.id === m.id)) {
-                    m.voice.setChannel(blueTeamVoiceChannelId);
+                    m.voice.setChannel(blueTeamVoiceChannelId).then();
                 }
             }
         });
     };
 
-    // increasePugCount();
+    increasePugCount();
 
-    // guild.channels.create(`PUG #${pugCount}`, {
-    guild.channels.create(`Current PUG`, {
+    guild.channels.create(`PUG #${pugCount}`, {
         type: "category"
     }).then(c => {
         guild.channels.create(` 🎮 ${redTeamName}`, {
@@ -190,6 +186,13 @@ const createPugChannels = (): void => {
         }).then(c => {
             blueTeamVoiceChannelId = c.id;
             movePlayersToTeamVoiceChannels();
+            const pugVoiceChannel: PugVoiceChannel = {
+                id: pugCount,
+                redTeamChannelId: redTeamVoiceChannelId,
+                blueTeamChannelId: blueTeamVoiceChannelId,
+                messageId: ""
+            };
+            addPugVoiceChannel(pugVoiceChannel);
         })
     });
 };
@@ -219,17 +222,9 @@ const resetPug = (reaction: MessageReaction) => {
 
 };
 
-const removeRedTeamReaction = (reaction: MessageReaction, user: User | PartialUser) => {
-    if (!!redTeam.players && !!redTeam.players.find(u => u === user)) {
-        redTeam.players.splice(redTeam.players.indexOf(user), 1);
-        unassignedPlayers.push(user);
-        updateTeams(reaction, false);
-    }
-};
-
-const removeBlueTeamReaction = (reaction: MessageReaction, user: User | PartialUser) => {
-    if (!!blueTeam.players && !!blueTeam.players.find(u => u === user)) {
-        blueTeam.players.splice(blueTeam.players.indexOf(user), 1);
+const removeTeamReaction = (reaction: MessageReaction, user: User | PartialUser, team: Team) => {
+    if (!!team.players && !!team.players.find(u => u === user)) {
+        team.players.splice(team.players.indexOf(user), 1);
         unassignedPlayers.push(user);
         updateTeams(reaction, false);
     }
@@ -298,10 +293,10 @@ const handleReactionAdd = (reaction: MessageReaction, user: User | PartialUser) 
 const handleReactionRemove = (reaction: MessageReaction, user: User | PartialUser) => {
     switch (reaction.emoji.name) {
         case redTeamEmojiName:
-            removeRedTeamReaction(reaction, user);
+            removeTeamReaction(reaction, user, redTeam);
             break;
         case blueTeamEmojiName:
-            removeBlueTeamReaction(reaction, user);
+            removeTeamReaction(reaction, user, blueTeam);
             break;
         default:
             break;

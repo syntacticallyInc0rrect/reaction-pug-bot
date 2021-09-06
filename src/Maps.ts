@@ -206,8 +206,8 @@ const updateMaps = (msgId: string, secondsElapsed: number) => {
     } else {
         textChannel.send(buildMapsEmbed(getMapsEmbedProps(secondsElapsed))).then(m => {
             mapMsgId = m.id;
-            m.react(optionOneEmojiName);
-            m.react(optionTwoEmojiName);
+            m.react(optionOneEmojiName).then();
+            m.react(optionTwoEmojiName).then();
             m.react(optionThreeEmojiName).then(() => countdownTimer());
         });
     }
@@ -224,6 +224,7 @@ export const Maps = (action: BotAction, reaction: MessageReaction, user: User | 
         }
 
         switch (reaction.emoji.name) {
+            //TODO: eliminate duplicate code
             case optionOneEmojiName:
                 if (
                     !alreadyVotedOnOptionTwo.find(u => u === user) &&

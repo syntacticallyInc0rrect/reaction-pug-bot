@@ -1,6 +1,6 @@
 import {Channel, Client, Guild, MessageReaction, PartialUser, TextChannel, User} from "discord.js";
 import {Alerts} from "./Alerts";
-import {BotActionOptions, botToken, timeToRespond} from "./Api";
+import {BotActionOptions, botToken, PugVoiceChannel, timeToRespond} from "./Api";
 import {Hourglass} from "./Hourglass";
 import {Queue, queuedPlayers, queueMsgId} from "./Queue";
 import {Teams, tmMsgId} from "./Teams";
@@ -8,15 +8,28 @@ import {mapMsgId, Maps, mapToBePlayed} from "./Maps";
 import {Finalize, finalMsgId} from "./Finalize";
 
 export const client: Client = new Client();
+export let guild: Guild;
 export let channelId: string;
 export let discordId: string;
-// export let pugCount: number = 0;
-let channelCategoryId: string;
+export let pugCount: bigint = BigInt(0);
 export let queueVoiceChannelId: string;
+export let pugVoiceChannels: PugVoiceChannel[] = [];
 
-// export const increasePugCount = (): void => {
-//     pugCount++
-// };
+export const addPugVoiceChannel = (props: PugVoiceChannel) => {
+    pugVoiceChannels.push(props);
+};
+
+export const removePugVoiceChannel = () => {
+  pugVoiceChannels.splice(pugVoiceChannels.findIndex(p => p.id === pugCount), 1);
+};
+
+export const updatePugVoiceChannelMessageId = (messageId: string) => {
+    pugVoiceChannels[pugVoiceChannels.findIndex(p => p.id === pugCount)].messageId = messageId;
+};
+
+export const increasePugCount = () => {
+    pugCount++
+};
 
 const getGuild = (): Guild => {
     const maybeGuild: Guild | undefined = client.guilds.cache.first();
@@ -26,8 +39,6 @@ const getGuild = (): Guild => {
     }
     throw new Error("Your bot must be invited into a Discord Guild before trying to run it.");
 };
-
-export let guild: Guild;
 
 export const getChannel = (): Channel => {
     const channel = client.channels.cache.get(channelId);
@@ -50,7 +61,7 @@ const initializeBot = () => {
     guild.channels.create("PUG TEST", {
         type: "category"
     }).then(c => {
-        channelCategoryId = c.id;
+        // channelCategoryId = c.id;
         guild.channels.create("PUG BOT", {
             parent: c,
             type: "text"
@@ -60,7 +71,7 @@ const initializeBot = () => {
         guild.channels.create("PUG CHAT", {
             parent: c,
             type: "text"
-        });
+        }).then();
         guild.channels.create("PUG Queue", {
             parent: c,
             type: "voice"
@@ -102,6 +113,7 @@ client.on('messageReactionAdd', (
             case mapMsgId:
                 Maps(BotActionOptions.reactionAdd, reaction, user);
                 break;
+                //todo this won't work with double PUGs
             case finalMsgId:
                 Finalize(BotActionOptions.reactionAdd, finalMsgId, mapToBePlayed, reaction, user);
                 break;
