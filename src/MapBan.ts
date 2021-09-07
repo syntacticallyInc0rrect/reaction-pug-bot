@@ -1,13 +1,13 @@
 import {Message, MessageEmbed, MessageReaction, PartialUser, StringResolvable, User} from "discord.js";
 import {
     BotAction,
-    BotActionOptions,
+    BotActionOption,
     defaultEmbedColor,
     getTeamName,
     optionOneEmojiName,
     optionThreeEmojiName,
     optionTwoEmojiName,
-    TeamNameOptions,
+    TeamNameOption,
     timeToBanMap
 } from "./Api";
 import {suggestedMaps} from "./Hourglass";
@@ -93,8 +93,8 @@ let redBanOptionThree = new BanOption();
 let blueBanOptionOne = new BanOption();
 let blueBanOptionTwo = new BanOption();
 let blueBanOptionThree = new BanOption();
-let redTeamOption = new TeamOption(getTeamName(TeamNameOptions.red), redBanOptionOne, redBanOptionTwo, redBanOptionThree);
-let blueTeamOption = new TeamOption(getTeamName(TeamNameOptions.blue), blueBanOptionOne, blueBanOptionTwo, blueBanOptionThree);
+let redTeamOption = new TeamOption(getTeamName(TeamNameOption.red), redBanOptionOne, redBanOptionTwo, redBanOptionThree);
+let blueTeamOption = new TeamOption(getTeamName(TeamNameOption.blue), blueBanOptionOne, blueBanOptionTwo, blueBanOptionThree);
 let mapBanVote = new MapBanVote(redTeamOption, blueTeamOption);
 
 const resetMapBanVoteOptions = () => {
@@ -141,7 +141,7 @@ const countdownTimer = () => {
             i = 1;
             mapToBePlayed = getMapToBePlayed(redTeamOption.getHighestVotedOption(), blueTeamOption.getHighestVotedOption(true))
             Finalize(
-                BotActionOptions.initialize,
+                BotActionOption.initialize,
                 mapMsgId,
                 mapToBePlayed
             );
@@ -213,7 +213,7 @@ const updateMaps = (msgId: string, secondsElapsed: number) => {
     }
 };
 
-export const Maps = (action: BotAction, reaction: MessageReaction, user: User | PartialUser) => {
+export const MapBan = (action: BotAction, reaction: MessageReaction, user: User | PartialUser) => {
     const handleReactionAdd = (reaction: MessageReaction, user: User | PartialUser) => {
         if (!reaction || !user) throw Error("Tried to add a Reaction to the Map Ban Embed without a Reaction or a User.")
         const playerIsInThisPug: boolean = !!redTeam.players.find(u => u === user) ||
@@ -341,14 +341,14 @@ export const Maps = (action: BotAction, reaction: MessageReaction, user: User | 
     };
 
     switch (action) {
-        case BotActionOptions.initialize:
+        case BotActionOption.initialize:
             resetMapBanVoteOptions();
             updateMaps(tmMsgId, 0);
             break;
-        case BotActionOptions.reactionAdd:
+        case BotActionOption.reactionAdd:
             handleReactionAdd(reaction, user);
             break;
-        case BotActionOptions.reactionRemove:
+        case BotActionOption.reactionRemove:
             handleReactionRemove(reaction, user);
             break;
         default:

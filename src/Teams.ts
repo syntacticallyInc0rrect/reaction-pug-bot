@@ -7,7 +7,7 @@ import {
     blueTeamEmojiName,
     blueTeamName,
     BotAction,
-    BotActionOptions,
+    BotActionOption,
     defaultEmbedColor,
     defaultEmbedThumbnailUrl,
     defaultValueForEmptyTeam,
@@ -16,6 +16,8 @@ import {
     directMessageTitle,
     getChannelFullPath,
     getTeamName,
+    MapPickOption,
+    mapPickOption,
     matchSize,
     redTeamEmojiId,
     redTeamEmojiIdNum,
@@ -23,15 +25,17 @@ import {
     redTeamName,
     resetPugEmojiName,
     resetTeamsEmojiName,
-    TeamNameOptions,
+    TeamNameOption,
     teamsEmbedThumbnailUrl,
     teamsEmbedTitle,
     teamSize
 } from "./Api";
 import {EmbedField, Queue, queuedPlayers, removeReaction} from "./Queue";
-import {suggestedMaps} from "./Hourglass";
 import {addActivePug, guild, increasePugCount, pugCount, textChannel} from "./Bot";
-import {Maps} from "./Maps";
+import {suggestedMaps} from "./Hourglass";
+import {randomMap} from "./RandomMap";
+import {MapBan} from "./MapBan";
+import {Finalize} from "./Finalize";
 
 export let tmMsgId: string;
 
@@ -54,12 +58,12 @@ const redTeamReaction: string = redTeamEmojiIdNum !== "" ? redTeamEmojiIdNum : r
 const blueTeamReaction: string = blueTeamEmojiIdNum !== "" ? blueTeamEmojiIdNum : blueTeamEmojiName;
 
 export const redTeam: Team = new Team(
-    getTeamName(TeamNameOptions.red),
+    getTeamName(TeamNameOption.red),
     [],
     redTeamReaction
 );
 export const blueTeam: Team = new Team(
-    getTeamName(TeamNameOptions.blue),
+    getTeamName(TeamNameOption.blue),
     [],
     blueTeamReaction
 );
@@ -93,7 +97,7 @@ const getBlueTeamPlayers = (): (User | PartialUser)[] => blueTeam.players;
 
 const getTeamsEmbedProps = (): TeamsEmbedProps => {
     return {
-        author: `Suggested Map: ${suggestedMaps[1]}`,
+        author: `Suggested Map: ${mapPickOption === MapPickOption.ban ? suggestedMaps[1] : randomMap}`,
         color: defaultEmbedColor,
         title: teamsEmbedTitle,
         thumbnail: teamsEmbedThumbnailUrl ? teamsEmbedThumbnailUrl : defaultEmbedThumbnailUrl,
@@ -155,6 +159,23 @@ const sendInitialTeamsEmbed = (reaction: MessageReaction, props: TeamsEmbedProps
         });
     });
 };
+
+const callMapPickFunction = (reaction: MessageReaction, user: User | PartialUser) => {
+    switch (mapPickOption) {
+        case MapPickOption.ban:
+            MapBan(BotActionOption.initialize, reaction, user);
+            break;
+        case MapPickOption.random:
+            Finalize(BotActionOption.initialize, tmMsgId, randomMap);
+            break;
+        case MapPickOption.vote:
+            //TODO
+            // MapVote();
+            break;
+        default:
+            break;
+    }
+}
 
 const createPugChannels = () => {
     let redTeamVoiceChannelId: string;
@@ -220,7 +241,7 @@ const resetPug = (reaction: MessageReaction) => {
     wipeTeams();
     queuedPlayers.splice(0, queuedPlayers.length);
     reaction.message.delete().then(() => {
-        Queue(BotActionOptions.initialize);
+        Queue(BotActionOption.initialize);
     })
 
 };
@@ -252,7 +273,7 @@ const handleReactionAdd = (reaction: MessageReaction, user: User | PartialUser) 
             if (checkIfTeamsAreFull()) {
                 reaction.message.delete().then(() => {
                     createPugChannels();
-                    Maps(BotActionOptions.initialize, reaction, user)
+                    callMapPickFunction(reaction, user);
                 });
             } else {
                 updateTeams(reaction, false);
@@ -313,15 +334,15 @@ export const Teams = (
     queuedPlayers?: (User | PartialUser)[]
 ) => {
     switch (action) {
-        case BotActionOptions.initialize:
+        case BotActionOption.initialize:
             if (!queuedPlayers) throw Error("There are no Queued Players to form Teams from.");
             unassignedPlayers = [...queuedPlayers];
             sendInitialTeamsEmbed(reaction, getTeamsEmbedProps());
             break;
-        case BotActionOptions.reactionAdd:
+        case BotActionOption.reactionAdd:
             handleReactionAdd(reaction, user);
             break;
-        case BotActionOptions.reactionRemove:
+        case BotActionOption.reactionRemove:
             handleReactionRemove(reaction, user);
             break;
         default:

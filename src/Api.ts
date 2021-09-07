@@ -13,24 +13,30 @@ export type ActivePug = {
     blueTeamPlayers: (User | PartialUser)[]
 }
 
-export type BotAction = BotActionOptions;
+export type BotAction = BotActionOption;
 
-export enum BotActionOptions {
+export enum BotActionOption {
     initialize = 0,
     reactionAdd = 1,
     reactionRemove = 2,
     update = 3
 }
 
-export enum TeamNameOptions {
+export enum TeamNameOption {
     red = 0,
     blue = 1
 }
 
-export const getTeamName = (whichTeam: TeamNameOptions): string => {
-    if (whichTeam === TeamNameOptions.red) {
+export enum MapPickOption {
+    random = 0,
+    vote = 1,
+    ban = 2
+}
+
+export const getTeamName = (whichTeam: TeamNameOption): string => {
+    if (whichTeam === TeamNameOption.red) {
         return redTeamName;
-    } else if (whichTeam === TeamNameOptions.blue) {
+    } else if (whichTeam === TeamNameOption.blue) {
         return blueTeamName;
     } else {
         throw Error("Unable to find team name that was outside the scope of these two teams.");
@@ -60,6 +66,7 @@ const getBlueTeamName = (): string => process.env.BLUE_TEAM_NAME ? process.env.B
 export const botToken: string = getBotToken();
 
 export const mapPool: string[] = getMapPool();
+export let mapPickOption: MapPickOption = MapPickOption.random;
 
 export const getChannelFullPath = (): string => `https://discord.com/channels/${discordId}/${channelId}`
 export const defaultValueForEmptyTeam: string = process.env.DEFAULT_VALUE_FOR_EMPTY_TEAM ? process.env.DEFAULT_VALUE_FOR_EMPTY_TEAM : "waiting on first player";

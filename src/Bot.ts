@@ -1,11 +1,20 @@
 import {Channel, Client, Guild, MessageReaction, PartialUser, TextChannel, User} from "discord.js";
 import {Alerts} from "./Alerts";
-import {BotActionOptions, botToken, finishPugEmojiName, ActivePug, timeToRespond} from "./Api";
-import {Hourglass} from "./Hourglass";
+import {
+    ActivePug,
+    BotActionOption,
+    botToken,
+    finishPugEmojiName,
+    mapPickOption,
+    MapPickOption,
+    timeToRespond
+} from "./Api";
 import {Queue, queuedPlayers, queueMsgId, removeReaction} from "./Queue";
 import {Teams, tmMsgId} from "./Teams";
-import {mapMsgId, Maps, mapToBePlayed} from "./Maps";
+import {MapBan, mapMsgId, mapToBePlayed} from "./MapBan";
 import {Finalize} from "./Finalize";
+import {Hourglass} from "./Hourglass";
+import {RandomMap} from "./RandomMap";
 
 export const client: Client = new Client();
 export let guild: Guild;
@@ -56,6 +65,22 @@ export const getTextChannel = (channel: Channel): TextChannel => {
 
 export let textChannel: TextChannel;
 
+const initiateMapPicks = (mapPickOption: MapPickOption) => {
+    switch (mapPickOption) {
+        case MapPickOption.ban:
+            Hourglass();
+            break;
+        case MapPickOption.random:
+            RandomMap();
+            break;
+        case MapPickOption.vote:
+            RandomMap();
+            break;
+        default:
+            break;
+    }
+}
+
 const initializeBot = () => {
     guild = getGuild();
     guild.channels.create("PUG", {
@@ -85,8 +110,8 @@ const initializeBot = () => {
         }).then(c => {
                 queueVoiceChannelId = c.id;
                 textChannel = getTextChannel(getChannel());
-                Queue(BotActionOptions.initialize);
-                Hourglass();
+                Queue(BotActionOption.initialize);
+                initiateMapPicks(mapPickOption);
             }
         );
     });
@@ -112,18 +137,18 @@ client.on('messageReactionAdd', (
     if (!isUserTheBot && isMessageFromBot) {
         switch (reaction.message.id) {
             case queueMsgId:
-                Queue(BotActionOptions.reactionAdd, reaction, user);
+                Queue(BotActionOption.reactionAdd, reaction, user);
                 break;
             case tmMsgId:
-                Teams(BotActionOptions.reactionAdd, reaction, user);
+                Teams(BotActionOption.reactionAdd, reaction, user);
                 break;
             case mapMsgId:
-                Maps(BotActionOptions.reactionAdd, reaction, user);
+                MapBan(BotActionOption.reactionAdd, reaction, user);
                 break;
             default:
                 if (reaction.emoji.name === finishPugEmojiName) {
                     if (!!activePugs.find(p => p.messageId === reaction.message.id)) {
-                        Finalize(BotActionOptions.reactionAdd, reaction.message.id, mapToBePlayed, reaction, user);
+                        Finalize(BotActionOption.reactionAdd, reaction.message.id, mapToBePlayed, reaction, user);
                     }
                 } else {
                     removeReaction(reaction, user);
@@ -139,13 +164,13 @@ client.on('messageReactionRemove', (
 ) => {
     switch (reaction.message.id) {
         case queueMsgId:
-            Queue(BotActionOptions.reactionRemove, reaction, user);
+            Queue(BotActionOption.reactionRemove, reaction, user);
             break;
         case tmMsgId:
-            Teams(BotActionOptions.reactionRemove, reaction, user);
+            Teams(BotActionOption.reactionRemove, reaction, user);
             break;
         case mapMsgId:
-            Maps(BotActionOptions.reactionRemove, reaction, user);
+            MapBan(BotActionOption.reactionRemove, reaction, user);
             break;
         default:
             break;

@@ -1,9 +1,9 @@
 import {
     alertEmbedThumbnailUrl,
-    BotActionOptions,
-    getChannelFullPath,
+    BotActionOption,
     defaultEmbedColor,
     defaultEmbedThumbnailUrl,
+    getChannelFullPath,
     timeToAlert
 } from "./Api";
 import {EmbedField, Queue, queuedPlayers} from "./Queue";
@@ -45,7 +45,7 @@ export const Alerts = () => {
     queuedPlayers && queuedPlayers.forEach(qp => {
         if (qp.warned) {
             queuedPlayers.splice(queuedPlayers.indexOf(qp), 1);
-            Queue(BotActionOptions.update, undefined, undefined, qp.user);
+            Queue(BotActionOption.update, undefined, undefined, qp.user);
         } else if ((new Date().getTime() - timeToAlert.getTime()) > qp.timestamp.getTime()) {
             qp.user.send(buildAlertEmbed(getAlertEmbedProps())).then(
                 () => console.log(`${qp.user} was alerted they may be removed from queue at ${new Date()}`)

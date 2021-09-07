@@ -1,5 +1,5 @@
 import {Teams} from "../Teams";
-import {BotActionOptions} from "../Api";
+import {BotActionOption} from "../Api";
 import {MessageReaction, User} from "discord.js";
 
 describe("Teams", () => {
@@ -10,7 +10,7 @@ describe("Teams", () => {
 
     test("teams throws an error when it is not provided an array of queued players", () => {
         expect(() => {
-            Teams(BotActionOptions.initialize, reaction, user);
+            Teams(BotActionOption.initialize, reaction, user);
         }).toThrowError("There are no Queued Players to form Teams from.");
     })
 })

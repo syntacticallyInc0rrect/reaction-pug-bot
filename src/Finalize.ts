@@ -4,7 +4,7 @@ import {
     blueTeamEmojiName,
     blueTeamName,
     BotAction,
-    BotActionOptions,
+    BotActionOption,
     defaultEmbedColor,
     defaultEmbedThumbnailUrl,
     finalEmbedThumbnailUrl,
@@ -26,7 +26,7 @@ import {
 } from "./Bot";
 import {EmbedField, Queue, removeReaction} from "./Queue";
 import {Hourglass} from "./Hourglass";
-import {resetMapToBePlayed} from "./Maps";
+import {resetMapToBePlayed} from "./MapBan";
 
 type FinalEmbedProps = {
     author: StringResolvable,
@@ -139,7 +139,7 @@ export const Finalize = (
                     updateActivePugMessageId(m.id);
                     wipeTeams();
                     resetMapToBePlayed();
-                    Queue(BotActionOptions.initialize);
+                    Queue(BotActionOption.initialize);
                     Hourglass();
                 });
             });
@@ -173,10 +173,10 @@ export const Finalize = (
     };
 
     switch (action) {
-        case BotActionOptions.initialize:
+        case BotActionOption.initialize:
             initializeFinalize(msgId, mapToBePlayed)
             break;
-        case BotActionOptions.reactionAdd:
+        case BotActionOption.reactionAdd:
             handleReactionAdd(reaction, user);
             break;
         default:
