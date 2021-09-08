@@ -1,27 +1,27 @@
-import * as Api from "./Api";
+import {mapPool} from "./Api";
 
 export enum Side {
     Top = 0,
     Bottom = 1
 }
 
-export let mapPool: string[] = Api.mapPool;
-export let mapsTop: string[] = [...mapPool];
+export let hourglassMapPool: string[] = mapPool;
+export let mapsTop: string[] = [...hourglassMapPool];
 export let mapsBottom: string[] = [];
 export let suggestedMaps: string[] = [];
 export let side: Side = Side.Top;
 
 //TODO: get rid of this once .env is replaced with backend calls
 export const initializeHourglassForUnitTests = (mp: string[]) => {
-    mapPool = mp;
-    mapsTop = [...mapPool];
+    hourglassMapPool = mp;
+    mapsTop = [...hourglassMapPool];
     mapsBottom = [];
     suggestedMaps = [];
     side = Side.Top;
 };
 
 export const Hourglass = () => {
-    if (mapPool.length < 3) throw Error("Map Pool must contain at least 3 Maps!");
+    if (hourglassMapPool.length < 3) throw Error("Map Pool must contain at least 3 Maps!");
     const getRandomMap = (maps: string[]): string => {
         return maps[Math.floor(Math.random() * maps.length)];
     };

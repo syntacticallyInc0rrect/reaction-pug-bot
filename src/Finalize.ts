@@ -4,7 +4,7 @@ import {
     blueTeamEmojiName,
     blueTeamName,
     BotAction,
-    BotActionOptions,
+    BotActionOption,
     defaultEmbedColor,
     defaultEmbedThumbnailUrl,
     finalEmbedThumbnailUrl,
@@ -13,7 +13,7 @@ import {
     redTeamEmojiName,
     redTeamName
 } from "./Api";
-import {Message, MessageEmbed, MessageReaction, PartialUser, StringResolvable, User} from "discord.js";
+import {GuildMember, Message, MessageEmbed, MessageReaction, PartialUser, StringResolvable, User} from "discord.js";
 import {blueTeam, redTeam, Team, wipeTeams} from "./Teams";
 import {
     activePugs,
@@ -21,12 +21,12 @@ import {
     pugCount,
     queueVoiceChannelId,
     removeActivePug,
+    setMapToBePlayed,
     textChannel,
     updateActivePugMessageId
 } from "./Bot";
 import {EmbedField, Queue, removeReaction} from "./Queue";
 import {Hourglass} from "./Hourglass";
-import {resetMapToBePlayed} from "./Maps";
 
 type FinalEmbedProps = {
     author: StringResolvable,
@@ -79,23 +79,24 @@ const getVoiceChannelId = (team: Team, messageId: string): string => {
 const movePlayersBackToQueueVoiceChannel = async (messageId: string) => {
     const redVoiceChannelId = getVoiceChannelId(redTeam, messageId);
     const blueVoiceChannelId = getVoiceChannelId(blueTeam, messageId);
-    
+
     const redVoiceChannelMembers: GuildMember[] = guild.channels.cache.get(redVoiceChannelId) ?
-          guild.channels.cache.get(redVoiceChannelId)!.members.map(m => m) :
-            [];
-    
-    const blueVoiceChannelMembers = guild.channels.cache.get(blueVoiceChannelId) ?
-          guild.channels.cache.get(blueVoiceChannelId)!.members.map(m => m) :
-            [];
-    
+        guild.channels.cache.get(redVoiceChannelId)!.members.map(m => m) :
+        [];
+
+    const blueVoiceChannelMembers: GuildMember[] = guild.channels.cache.get(blueVoiceChannelId) ?
+        guild.channels.cache.get(blueVoiceChannelId)!.members.map(m => m) :
+        [];
+
     for (const member of redVoiceChannelMembers) {
-        if (!!member.voice.channel) await member.voice.setChannel(queueVoiceChannelId).catch(e => console.log(e.message));
+        if (!!member.voice.channel) await member.voice.setChannel(queueVoiceChannelId)
+            .catch(e => console.log(e.message));
     }
-    
     for (const member of blueVoiceChannelMembers) {
-        if (!!member.voice.channel) await member.voice.setChannel(queueVoiceChannelId).catch(e => console.log(e.message));
+        if (!!member.voice.channel) await member.voice.setChannel(queueVoiceChannelId)
+            .catch(e => console.log(e.message));
     }
-    
+
     deleteOldVoiceChannels(messageId);
     removeActivePug(messageId);
 
@@ -138,8 +139,8 @@ export const Finalize = (
                 m.react(finishPugEmojiName).then(() => {
                     updateActivePugMessageId(m.id);
                     wipeTeams();
-                    resetMapToBePlayed();
-                    Queue(BotActionOptions.initialize);
+                    setMapToBePlayed("");
+                    Queue(BotActionOption.initialize);
                     Hourglass();
                 });
             });
@@ -173,10 +174,10 @@ export const Finalize = (
     };
 
     switch (action) {
-        case BotActionOptions.initialize:
+        case BotActionOption.initialize:
             initializeFinalize(msgId, mapToBePlayed)
             break;
-        case BotActionOptions.reactionAdd:
+        case BotActionOption.reactionAdd:
             handleReactionAdd(reaction, user);
             break;
         default:

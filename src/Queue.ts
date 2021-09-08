@@ -1,7 +1,7 @@
 import {MessageEmbed, MessageReaction, PartialUser, StringResolvable, User} from "discord.js";
 import {
     BotAction,
-    BotActionOptions,
+    BotActionOption,
     defaultEmbedColor,
     defaultEmbedThumbnailUrl,
     defaultValueForEmptyTeam,
@@ -15,7 +15,6 @@ import {
 } from "./Api";
 import {activePugs, textChannel} from "./Bot";
 import {Teams} from "./Teams";
-import {Hourglass} from "./Hourglass";
 
 export type QueuedPlayer = {
     user: User | PartialUser,
@@ -74,7 +73,7 @@ const handleReactionAdd = (reaction?: MessageReaction, user?: User | PartialUser
             if (queuedPlayers.length < matchSize) {
                 updateQueueEmbed(getQueueEmbedProps(), reaction);
             } else {
-                Teams(BotActionOptions.initialize, reaction, user, [...queuedPlayers.map(p => p.user)]);
+                Teams(BotActionOption.initialize, reaction, user, [...queuedPlayers.map(p => p.user)]);
                 queuedPlayers = [];
             }
         } else {
@@ -83,8 +82,7 @@ const handleReactionAdd = (reaction?: MessageReaction, user?: User | PartialUser
     } else if (reaction.emoji.name === resetPugEmojiName) {
         queuedPlayers.splice(0, queuedPlayers.length);
         reaction.message.delete().then(() => {
-            Queue(BotActionOptions.initialize);
-            Hourglass();
+            Queue(BotActionOption.initialize);
         });
 
     } else {
@@ -164,17 +162,17 @@ export const Queue = (
     removedUser?: User | PartialUser
 ) => {
     switch (action) {
-        case BotActionOptions.initialize:
+        case BotActionOption.initialize:
             queuedPlayers = [];
             sendInitialEmbed(getQueueEmbedProps());
             break;
-        case BotActionOptions.reactionAdd:
+        case BotActionOption.reactionAdd:
             handleReactionAdd(reaction, user);
             break;
-        case BotActionOptions.reactionRemove:
+        case BotActionOption.reactionRemove:
             handleReactionRemove(reaction, user);
             break;
-        case BotActionOptions.update:
+        case BotActionOption.update:
             updateQueueEmbed(getQueueEmbedProps(), undefined, removedUser);
             break;
         default:
