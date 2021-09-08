@@ -53,10 +53,18 @@ const getBotToken = (): string => {
 
 const getMapPool = (): string[] => {
     if (process.env.MAP_POOL) {
-        return process.env.MAP_POOL.split(',');
+        const mapPool: string[] = process.env.MAP_POOL.split(',');
+        if (mapPickOption === MapPickOption.ban && mapPool.length < 3) {
+            throw Error("Your map pool must have at least 3 maps to use the Map Ban feature");
+        }
+        if (mapPickOption === MapPickOption.vote && mapPool.length > 12) {
+            throw Error("Your Map Pool must have 12 or less maps to use the Map Vote feature");
+        }
+        return mapPool;
     } else {
         throw Error("Your map pool is undefined!");
     }
+
 };
 
 //TODO: handle all configurable variables this way so they can be redefined while bot is running
@@ -65,8 +73,9 @@ const getBlueTeamName = (): string => process.env.BLUE_TEAM_NAME ? process.env.B
 
 export const botToken: string = getBotToken();
 
-export const mapPool: string[] = getMapPool();
 export let mapPickOption: MapPickOption = MapPickOption.random;
+export const mapPool: string[] = getMapPool();
+
 
 export const getChannelFullPath = (): string => `https://discord.com/channels/${discordId}/${channelId}`
 export const defaultValueForEmptyTeam: string = process.env.DEFAULT_VALUE_FOR_EMPTY_TEAM ? process.env.DEFAULT_VALUE_FOR_EMPTY_TEAM : "waiting on first player";
