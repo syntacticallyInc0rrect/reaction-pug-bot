@@ -1,4 +1,4 @@
-import {BanOption, TeamOption} from "../Maps";
+import {BanOption, TeamOption} from "../MapBan";
 
 describe("Maps", () => {
     describe("getHighestVotedOption", () => {
