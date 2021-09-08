@@ -50,7 +50,9 @@ export class TeamOption {
         let highestVotedOption: BanOption = !!reverseOrder ? this.optionThree : this.optionOne;
         const optionsArray: BanOption[] = [this.optionOne, this.optionTwo, this.optionThree];
         !!reverseOrder && optionsArray.reverse();
-        optionsArray.map(o => { if (o.count > highestVotedOption.count) highestVotedOption = o });
+        optionsArray.map(o => {
+            if (o.count > highestVotedOption.count) highestVotedOption = o
+        });
 
         return highestVotedOption;
     };
@@ -216,67 +218,49 @@ export const MapBan = (action: BotAction, reaction: MessageReaction, user: User 
             return;
         }
 
-        switch (reaction.emoji.name) {
-            //TODO: eliminate duplicate code
-            case optionOneEmojiName:
-                if (
-                    !alreadyVotedOnOptionTwo.find(u => u === user) &&
-                    !alreadyVotedOnOptionThree.find(u => u === user)
-                ) {
-                    if (redTeam.players.find(u => u === user)) {
-                        redTeamOption.optionOne.count++;
-                        alreadyVotedOnOptionOne.push(user);
-                    } else if (blueTeam.players.find(u => u === user)) {
-                        blueTeamOption.optionOne.count++;
-                        alreadyVotedOnOptionOne.push(user);
-                    } else {
-                        throw Error(
-                            "User was not found on either team and should not have been allowed to get this far."
-                        )
-                    }
+        const handleVoteOptionReaction = (emojiName: string) => {
+            const firstAlreadyVotedOption: (User | PartialUser)[] = emojiName === optionOneEmojiName ?
+                alreadyVotedOnOptionTwo :
+                alreadyVotedOnOptionOne;
+            const secondAlreadyVotedOption: (User | PartialUser)[] = emojiName === optionThreeEmojiName ?
+                alreadyVotedOnOptionTwo :
+                alreadyVotedOnOptionThree;
+            const currentAlreadyVotedOption: (User | PartialUser)[] = emojiName === optionOneEmojiName ?
+                alreadyVotedOnOptionOne :
+                emojiName === optionTwoEmojiName ?
+                    alreadyVotedOnOptionTwo :
+                    alreadyVotedOnOptionThree;
+
+            if (
+                !firstAlreadyVotedOption.find(u => u === user) &&
+                !secondAlreadyVotedOption.find(u => u === user)
+            ) {
+                if (redTeam.players.find(u => u === user)) {
+                    redTeamOption.optionOne.count++;
+                    currentAlreadyVotedOption.push(user);
+                } else if (blueTeam.players.find(u => u === user)) {
+                    blueTeamOption.optionOne.count++;
+                    currentAlreadyVotedOption.push(user);
                 } else {
-                    removeReaction(reaction, user);
+                    throw Error(
+                        "User was not found on either team and should not have been allowed to get this far."
+                    )
                 }
+            } else {
+                removeReaction(reaction, user);
+            }
+        };
+
+
+        switch (reaction.emoji.name) {
+            case optionOneEmojiName:
+                handleVoteOptionReaction(optionOneEmojiName);
                 break;
             case optionTwoEmojiName:
-                if (
-                    !alreadyVotedOnOptionOne.find(u => u === user) &&
-                    !alreadyVotedOnOptionThree.find(u => u === user)
-                ) {
-                    if (redTeam.players.find(u => u === user)) {
-                        redTeamOption.optionTwo.count++;
-                        alreadyVotedOnOptionTwo.push(user);
-                    } else if (blueTeam.players.find(u => u === user)) {
-                        blueTeamOption.optionTwo.count++;
-                        alreadyVotedOnOptionTwo.push(user);
-                    } else {
-                        throw Error(
-                            "User was not found on either team and should not have been allowed to get this far."
-                        )
-                    }
-                } else {
-                    removeReaction(reaction, user);
-                }
+                handleVoteOptionReaction(optionTwoEmojiName);
                 break;
             case optionThreeEmojiName:
-                if (
-                    !alreadyVotedOnOptionOne.find(u => u === user) &&
-                    !alreadyVotedOnOptionTwo.find(u => u === user)
-                ) {
-                    if (redTeam.players.find(u => u === user)) {
-                        redTeamOption.optionThree.count++;
-                        alreadyVotedOnOptionThree.push(user);
-                    } else if (blueTeam.players.find(u => u === user)) {
-                        blueTeamOption.optionThree.count++;
-                        alreadyVotedOnOptionThree.push(user);
-                    } else {
-                        throw Error(
-                            "User was not found on either team and should not have been allowed to get this far."
-                        )
-                    }
-                } else {
-                    removeReaction(reaction, user);
-                }
+                handleVoteOptionReaction(optionThreeEmojiName);
                 break;
             default:
                 removeReaction(reaction, user);
