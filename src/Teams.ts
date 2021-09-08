@@ -36,6 +36,7 @@ import {suggestedMaps} from "./Hourglass";
 import {randomMap} from "./RandomMap";
 import {MapBan} from "./MapBan";
 import {Finalize} from "./Finalize";
+import {MapVote} from "./MapVote";
 
 export let tmMsgId: string;
 
@@ -169,8 +170,7 @@ const callMapPickFunction = (reaction: MessageReaction, user: User | PartialUser
             Finalize(BotActionOption.initialize, tmMsgId, randomMap);
             break;
         case MapPickOption.vote:
-            //TODO
-            // MapVote();
+            MapVote(BotActionOption.initialize, reaction, user);
             break;
         default:
             break;

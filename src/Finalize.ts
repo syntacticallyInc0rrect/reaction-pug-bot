@@ -13,7 +13,7 @@ import {
     redTeamEmojiName,
     redTeamName
 } from "./Api";
-import {Message, MessageEmbed, MessageReaction, PartialUser, StringResolvable, User} from "discord.js";
+import {GuildMember, Message, MessageEmbed, MessageReaction, PartialUser, StringResolvable, User} from "discord.js";
 import {blueTeam, redTeam, Team, wipeTeams} from "./Teams";
 import {
     activePugs,
@@ -21,12 +21,12 @@ import {
     pugCount,
     queueVoiceChannelId,
     removeActivePug,
+    setMapToBePlayed,
     textChannel,
     updateActivePugMessageId
 } from "./Bot";
 import {EmbedField, Queue, removeReaction} from "./Queue";
 import {Hourglass} from "./Hourglass";
-import {resetMapToBePlayed} from "./MapBan";
 
 type FinalEmbedProps = {
     author: StringResolvable,
@@ -76,28 +76,29 @@ const getVoiceChannelId = (team: Team, messageId: string): string => {
             "";
 };
 
-const movePlayersBackToQueueVoiceChannel = (messageId: string) => {
+const movePlayersBackToQueueVoiceChannel = async (messageId: string) => {
     const redVoiceChannelId = getVoiceChannelId(redTeam, messageId);
     const blueVoiceChannelId = getVoiceChannelId(blueTeam, messageId);
 
-    !!guild.channels.cache.get(redVoiceChannelId) &&
-    guild.channels.cache.get(redVoiceChannelId)!.members.forEach(m => {
-        if (!!m.voice.channel) {
-            m.voice.setChannel(queueVoiceChannelId).catch(e => console.log(e.message));
-        }
-    });
+    const redVoiceChannelMembers: GuildMember[] = guild.channels.cache.get(redVoiceChannelId) ?
+        guild.channels.cache.get(redVoiceChannelId)!.members.map(m => m) :
+        [];
 
-    !!guild.channels.cache.get(blueVoiceChannelId) &&
-    guild.channels.cache.get(blueVoiceChannelId)!.members.forEach(m => {
-        if (!!m.voice.channel) {
-            m.voice.setChannel(queueVoiceChannelId).catch(e => console.log(e.message));
-        }
-    });
+    const blueVoiceChannelMembers: GuildMember[] = guild.channels.cache.get(blueVoiceChannelId) ?
+        guild.channels.cache.get(blueVoiceChannelId)!.members.map(m => m) :
+        [];
 
-    setTimeout(() => {
-        deleteOldVoiceChannels(messageId);
-        removeActivePug(messageId);
-    }, 5000);
+    for (const member of redVoiceChannelMembers) {
+        if (!!member.voice.channel) await member.voice.setChannel(queueVoiceChannelId)
+            .catch(e => console.log(e.message));
+    }
+    for (const member of blueVoiceChannelMembers) {
+        if (!!member.voice.channel) await member.voice.setChannel(queueVoiceChannelId)
+            .catch(e => console.log(e.message));
+    }
+
+    deleteOldVoiceChannels(messageId);
+    removeActivePug(messageId);
 
 };
 
@@ -138,7 +139,7 @@ export const Finalize = (
                 m.react(finishPugEmojiName).then(() => {
                     updateActivePugMessageId(m.id);
                     wipeTeams();
-                    resetMapToBePlayed();
+                    setMapToBePlayed("");
                     Queue(BotActionOption.initialize);
                     Hourglass();
                 });

@@ -11,10 +11,11 @@ import {
 } from "./Api";
 import {Queue, queuedPlayers, queueMsgId, removeReaction} from "./Queue";
 import {Teams, tmMsgId} from "./Teams";
-import {MapBan, mapMsgId, mapToBePlayed} from "./MapBan";
+import {MapBan, mapBanMsgId} from "./MapBan";
 import {Finalize} from "./Finalize";
 import {Hourglass} from "./Hourglass";
 import {RandomMap} from "./RandomMap";
+import {MapVote, mapVoteMsgId} from "./MapVote";
 
 export const client: Client = new Client();
 export let guild: Guild;
@@ -64,6 +65,12 @@ export const getTextChannel = (channel: Channel): TextChannel => {
 };
 
 export let textChannel: TextChannel;
+
+export let mapToBePlayed: string = "";
+
+export const setMapToBePlayed = (newValue: string) => {
+    mapToBePlayed = newValue;
+}
 
 const initiateMapPicks = (mapPickOption: MapPickOption) => {
     switch (mapPickOption) {
@@ -142,8 +149,11 @@ client.on('messageReactionAdd', (
             case tmMsgId:
                 Teams(BotActionOption.reactionAdd, reaction, user);
                 break;
-            case mapMsgId:
+            case mapBanMsgId:
                 MapBan(BotActionOption.reactionAdd, reaction, user);
+                break;
+            case mapVoteMsgId:
+                MapVote(BotActionOption.reactionAdd, reaction, user);
                 break;
             default:
                 if (reaction.emoji.name === finishPugEmojiName) {
@@ -169,8 +179,11 @@ client.on('messageReactionRemove', (
         case tmMsgId:
             Teams(BotActionOption.reactionRemove, reaction, user);
             break;
-        case mapMsgId:
+        case mapBanMsgId:
             MapBan(BotActionOption.reactionRemove, reaction, user);
+            break;
+        case mapVoteMsgId:
+            MapVote(BotActionOption.reactionRemove, reaction, user);
             break;
         default:
             break;

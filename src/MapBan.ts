@@ -12,20 +12,15 @@ import {
 } from "./Api";
 import {suggestedMaps} from "./Hourglass";
 import {EmbedField, removeReaction} from "./Queue";
-import {textChannel} from "./Bot";
+import {mapToBePlayed, setMapToBePlayed, textChannel} from "./Bot";
 import {Finalize} from "./Finalize";
 import {blueTeam, redTeam, tmMsgId} from "./Teams";
 
-export let mapMsgId: string = "";
-export let mapToBePlayed: string = "";
+export let mapBanMsgId: string = "";
 
-export const resetMapToBePlayed = () => {
-    mapToBePlayed = "";
-}
-
-let alreadyVotedOnOptionOne: (User | PartialUser)[];
-let alreadyVotedOnOptionTwo: (User | PartialUser)[];
-let alreadyVotedOnOptionThree: (User | PartialUser)[];
+let alreadyVotedOnOptionOne: (User | PartialUser)[] = [];
+let alreadyVotedOnOptionTwo: (User | PartialUser)[] = [];
+let alreadyVotedOnOptionThree: (User | PartialUser)[] = [];
 
 export class BanOption {
     public value: string;
@@ -55,10 +50,7 @@ export class TeamOption {
         let highestVotedOption: BanOption = !!reverseOrder ? this.optionThree : this.optionOne;
         const optionsArray: BanOption[] = [this.optionOne, this.optionTwo, this.optionThree];
         !!reverseOrder && optionsArray.reverse();
-        optionsArray.map(o => {
-            (o.count > highestVotedOption.count) ? highestVotedOption = o : () => {
-            }
-        });
+        optionsArray.map(o => { if (o.count > highestVotedOption.count) highestVotedOption = o });
 
         return highestVotedOption;
     };
@@ -87,15 +79,15 @@ export class MapBanVote {
 
 }
 
-let redBanOptionOne = new BanOption();
-let redBanOptionTwo = new BanOption();
-let redBanOptionThree = new BanOption();
-let blueBanOptionOne = new BanOption();
-let blueBanOptionTwo = new BanOption();
-let blueBanOptionThree = new BanOption();
-let redTeamOption = new TeamOption(getTeamName(TeamNameOption.red), redBanOptionOne, redBanOptionTwo, redBanOptionThree);
-let blueTeamOption = new TeamOption(getTeamName(TeamNameOption.blue), blueBanOptionOne, blueBanOptionTwo, blueBanOptionThree);
-let mapBanVote = new MapBanVote(redTeamOption, blueTeamOption);
+const redBanOptionOne = new BanOption();
+const redBanOptionTwo = new BanOption();
+const redBanOptionThree = new BanOption();
+const blueBanOptionOne = new BanOption();
+const blueBanOptionTwo = new BanOption();
+const blueBanOptionThree = new BanOption();
+const redTeamOption = new TeamOption(getTeamName(TeamNameOption.red), redBanOptionOne, redBanOptionTwo, redBanOptionThree);
+const blueTeamOption = new TeamOption(getTeamName(TeamNameOption.blue), blueBanOptionOne, blueBanOptionTwo, blueBanOptionThree);
+const mapBanVote = new MapBanVote(redTeamOption, blueTeamOption);
 
 const resetMapBanVoteOptions = () => {
     const setMapBanVote = (team: TeamOption) => {
@@ -133,24 +125,25 @@ let i = 1;
 
 const countdownTimer = () => {
     setTimeout(() => {
-        updateMaps(mapMsgId, i)
+        updateMapBan(mapBanMsgId, i)
         if (i < timeToBanMap) {
             countdownTimer()
             i++
         } else {
             i = 1;
-            mapToBePlayed = getMapToBePlayed(redTeamOption.getHighestVotedOption(), blueTeamOption.getHighestVotedOption(true))
-            Finalize(
-                BotActionOption.initialize,
-                mapMsgId,
-                mapToBePlayed
+            setMapToBePlayed(
+                getMapToBePlayed(
+                    redTeamOption.getHighestVotedOption(),
+                    blueTeamOption.getHighestVotedOption(true)
+                )
             );
+            Finalize(BotActionOption.initialize, mapBanMsgId, mapToBePlayed);
             resetMapBanVoteOptions();
         }
     }, 1000);
 };
 
-type MapsEmbedProps = {
+type MapBanEmbedProps = {
     color: StringResolvable,
     title: StringResolvable,
     optionOneField: EmbedField,
@@ -159,7 +152,7 @@ type MapsEmbedProps = {
     countdownField: EmbedField
 };
 
-const getMapsEmbedProps = (secondsElapsed: number): MapsEmbedProps => {
+const getMapBanEmbedProps = (secondsElapsed: number): MapBanEmbedProps => {
     const secondsRemaining: number = timeToBanMap - secondsElapsed;
     const displaySecondsRemaining: string = secondsRemaining > 0 ? `${secondsRemaining}s` : `${secondsRemaining}`;
     return {
@@ -188,24 +181,24 @@ const getMapsEmbedProps = (secondsElapsed: number): MapsEmbedProps => {
     };
 };
 
-const buildMapsEmbed = (props: MapsEmbedProps): MessageEmbed => {
+const buildMapBanEmbed = (props: MapBanEmbedProps): MessageEmbed => {
     return new MessageEmbed()
         .setColor(props.color)
         .setTitle(props.title)
         .addFields(props.optionOneField, props.optionTwoField, props.optionThreeField, props.countdownField);
 };
 
-const updateMaps = (msgId: string, secondsElapsed: number) => {
+const updateMapBan = (msgId: string, secondsElapsed: number) => {
     const getMessage = (): Message => {
         const message = textChannel.messages.cache.get(msgId);
         if (!message) throw Error("The Bot Message was not found. This is a problem.");
         return message;
     }
-    if (msgId === mapMsgId) {
-        getMessage().edit(buildMapsEmbed(getMapsEmbedProps(secondsElapsed))).then(m => mapMsgId = m.id);
+    if (msgId === mapBanMsgId) {
+        getMessage().edit(buildMapBanEmbed(getMapBanEmbedProps(secondsElapsed))).then(m => mapBanMsgId = m.id);
     } else {
-        textChannel.send(buildMapsEmbed(getMapsEmbedProps(secondsElapsed))).then(m => {
-            mapMsgId = m.id;
+        textChannel.send(buildMapBanEmbed(getMapBanEmbedProps(secondsElapsed))).then(m => {
+            mapBanMsgId = m.id;
             m.react(optionOneEmojiName).then();
             m.react(optionTwoEmojiName).then();
             m.react(optionThreeEmojiName).then(() => countdownTimer());
@@ -343,7 +336,7 @@ export const MapBan = (action: BotAction, reaction: MessageReaction, user: User 
     switch (action) {
         case BotActionOption.initialize:
             resetMapBanVoteOptions();
-            updateMaps(tmMsgId, 0);
+            updateMapBan(tmMsgId, 0);
             break;
         case BotActionOption.reactionAdd:
             handleReactionAdd(reaction, user);
