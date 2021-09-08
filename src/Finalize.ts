@@ -76,28 +76,28 @@ const getVoiceChannelId = (team: Team, messageId: string): string => {
             "";
 };
 
-const movePlayersBackToQueueVoiceChannel = (messageId: string) => {
+const movePlayersBackToQueueVoiceChannel = async (messageId: string) => {
     const redVoiceChannelId = getVoiceChannelId(redTeam, messageId);
     const blueVoiceChannelId = getVoiceChannelId(blueTeam, messageId);
-
-    !!guild.channels.cache.get(redVoiceChannelId) &&
-    guild.channels.cache.get(redVoiceChannelId)!.members.forEach(m => {
-        if (!!m.voice.channel) {
-            m.voice.setChannel(queueVoiceChannelId).catch(e => console.log(e.message));
-        }
-    });
-
-    !!guild.channels.cache.get(blueVoiceChannelId) &&
-    guild.channels.cache.get(blueVoiceChannelId)!.members.forEach(m => {
-        if (!!m.voice.channel) {
-            m.voice.setChannel(queueVoiceChannelId).catch(e => console.log(e.message));
-        }
-    });
-
-    setTimeout(() => {
-        deleteOldVoiceChannels(messageId);
-        removeActivePug(messageId);
-    }, 5000);
+    
+    const redVoiceChannelMembers: GuildMember[] = guild.channels.cache.get(redVoiceChannelId) ?
+          guild.channels.cache.get(redVoiceChannelId)!.members.map(m => m) :
+            [];
+    
+    const blueVoiceChannelMembers = guild.channels.cache.get(blueVoiceChannelId) ?
+          guild.channels.cache.get(blueVoiceChannelId)!.members.map(m => m) :
+            [];
+    
+    for (const member of redVoiceChannelMembers) {
+        if (!!member.voice.channel) await member.voice.setChannel(queueVoiceChannelId).catch(e => console.log(e.message));
+    }
+    
+    for (const member of blueVoiceChannelMembers) {
+        if (!!member.voice.channel) await member.voice.setChannel(queueVoiceChannelId).catch(e => console.log(e.message));
+    }
+    
+    deleteOldVoiceChannels(messageId);
+    removeActivePug(messageId);
 
 };
 
