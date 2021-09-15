@@ -1,5 +1,4 @@
 import {
-    EmojiIdentifierResolvable,
     Message,
     MessageEmbed,
     MessageReaction,
@@ -9,12 +8,12 @@ import {
 } from "discord.js";
 import {BotAction, BotActionOptions, defaultEmbedColor, mapPool, timeToBanMap} from "./Api";
 import {EmbedField, removeReaction} from "./Queue";
-import {mapToBePlayed, setMapToBePlayed, textChannel} from "./Bot";
+import {lastThreeMapsPlayed, mapToBePlayed, setMapToBePlayed, textChannel} from "./Bot";
 import {Finalize} from "./Finalize";
 import {blueTeam, redTeam, tmMsgId} from "./Teams";
 
 export let mapVoteMsgId: string = "";
-const mapVoteEmojiList: EmojiIdentifierResolvable[] = [
+const mapVoteEmojiList: string[] = [
     "0️⃣",
     "1️⃣",
     "2️⃣",
@@ -33,12 +32,12 @@ const mapVoteEmojiList: EmojiIdentifierResolvable[] = [
 export class VoteOption {
     public value: string;
     public count: number;
-    public emojiName: EmojiIdentifierResolvable;
+    public emojiName: string;
 
-    public constructor(value: string, count: number, emoji: EmojiIdentifierResolvable) {
+    public constructor(value: string, count: number, emojiName: string) {
         this.value = value;
         this.count = count;
-        this.emojiName = emoji;
+        this.emojiName = emojiName;
     };
 
 }
@@ -54,20 +53,23 @@ export class MapVoteObject {
         const randomMap: string = mapPool[Math.floor(Math.random() * mapPool.length)];
         const randomVoteOption: VoteOption | undefined = this.voteOptions.find(o => o.value === randomMap);
         let highestVotedOption = randomVoteOption ? randomVoteOption : this.voteOptions[0];
+
+        //todo: toggle asc with desc so ties are resolved differently every other pug
         this.voteOptions.map(o => {
             if (o.count > highestVotedOption.count) highestVotedOption = o
         });
+
 
         return highestVotedOption.value;
     };
 
 }
 
-let voteOptions: VoteOption[] = mapPool.map(m => new VoteOption(m, 0, mapVoteEmojiList[mapPool.indexOf(m)]));
+let voteOptions: VoteOption[] = mapPool.sort().map(m => new VoteOption(m, 0, mapVoteEmojiList[mapPool.indexOf(m)]));
 const mapVoteObject = new MapVoteObject(voteOptions);
 
 const resetMapVoteOptions = () => {
-    voteOptions = mapPool.map(m => new VoteOption(m, 0, mapVoteEmojiList[mapPool.indexOf(m)]));
+    voteOptions = mapPool.sort().map(m => new VoteOption(m, 0, mapVoteEmojiList[mapPool.indexOf(m)]));
     mapVoteObject.voteOptions = voteOptions;
 };
 
@@ -106,6 +108,11 @@ const getMapVoteEmbedProps = (secondsElapsed: number): MapVoteEmbedProps => {
                 inline: false
             }
         });
+        (lastThreeMapsPlayed.length > 0) && voteOptionEmbeds.unshift({
+            name: `Last Played Map${(lastThreeMapsPlayed.length > 1) ? "s" : ""}`,
+            value: lastThreeMapsPlayed,
+            inline: true
+        });
         voteOptionEmbeds.push({
             name: "Timer:",
             value: displaySecondsRemaining,
@@ -128,11 +135,11 @@ const buildMapVoteEmbed = (props: MapVoteEmbedProps): MessageEmbed => {
         .addFields(props.optionFields);
 };
 
-const reactWithMapVoteOptionEmojis = async (message: Message) => {
-    const emojis: EmojiIdentifierResolvable[] = mapVoteObject.voteOptions.map(o => o.emojiName);
-    for (const emoji in emojis) {
-        await message.react(emoji);
-    }
+const reactWithMapVoteOptionEmojis = (message: Message) => {
+    const emojis: string[] = mapVoteObject.voteOptions.map(o => o.emojiName);
+    emojis.forEach(e => message.react(e));
+    setTimeout(() => countdownTimer(), 10000);
+
 }
 
 
@@ -147,7 +154,7 @@ const updateMapVote = (msgId: string, secondsElapsed: number) => {
     } else {
         textChannel.send(buildMapVoteEmbed(getMapVoteEmbedProps(secondsElapsed))).then(m => {
             mapVoteMsgId = m.id;
-            reactWithMapVoteOptionEmojis(m).then(() => countdownTimer());
+            reactWithMapVoteOptionEmojis(m);
         });
     }
 };

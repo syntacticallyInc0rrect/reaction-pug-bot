@@ -23,7 +23,7 @@ import {
     removeActivePug,
     textChannel,
     updateActivePugMessageId,
-    resetMapToBePlayed
+    resetMapToBePlayed, updateLastThreeMapsPlayed
 } from "./Bot";
 import {EmbedField, Queue, removeReaction} from "./Queue";
 import {Hourglass} from "./Hourglass";
@@ -97,7 +97,7 @@ const movePlayersBackToQueueVoiceChannel = (messageId: string) => {
     setTimeout(() => {
         deleteOldVoiceChannels(messageId);
         removeActivePug(messageId);
-    }, 5000);
+    }, 1500);
 
 };
 
@@ -138,6 +138,7 @@ export const Finalize = (
                 m.react(finishPugEmojiName).then(() => {
                     updateActivePugMessageId(m.id);
                     wipeTeams();
+                    updateLastThreeMapsPlayed();
                     resetMapToBePlayed();
                     Queue(BotActionOptions.initialize);
                     Hourglass();

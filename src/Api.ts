@@ -53,6 +53,10 @@ const getMapPool = (): string[] => {
     }
 };
 
+export const pushMapPool = (map: string) => mapPool.push(map);
+
+export const spliceMapPool = (map: string) => mapPool.splice(mapPool.indexOf(map), 1);
+
 //TODO: handle all configurable variables this way so they can be redefined while bot is running
 const getRedTeamName = (): string => process.env.RED_TEAM_NAME ? process.env.RED_TEAM_NAME : "Red Team";
 const getBlueTeamName = (): string => process.env.BLUE_TEAM_NAME ? process.env.BLUE_TEAM_NAME : "Blue Team";

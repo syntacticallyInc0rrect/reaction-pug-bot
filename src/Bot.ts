@@ -1,6 +1,14 @@
 import {Channel, Client, Guild, MessageReaction, PartialUser, TextChannel, User} from "discord.js";
 import {Alerts} from "./Alerts";
-import {BotActionOptions, botToken, finishPugEmojiName, ActivePug, timeToRespond} from "./Api";
+import {
+    BotActionOptions,
+    botToken,
+    finishPugEmojiName,
+    ActivePug,
+    timeToRespond,
+    spliceMapPool,
+    pushMapPool
+} from "./Api";
 import {Hourglass} from "./Hourglass";
 import {Queue, queuedPlayers, queueMsgId, removeReaction} from "./Queue";
 import {Teams, tmMsgId} from "./Teams";
@@ -15,12 +23,24 @@ export let pugCount: bigint = BigInt(0);
 export let queueVoiceChannelId: string;
 export let activePugs: ActivePug[] = [];
 export let mapToBePlayed: string = "";
+export let lastThreeMapsPlayed: string[] = [];
+
 export const setMapToBePlayed = (newMapToBePlayed: string) => {
     mapToBePlayed = newMapToBePlayed;
 };
+
 export const resetMapToBePlayed = () => {
     mapToBePlayed = "";
-}
+};
+
+export const updateLastThreeMapsPlayed = () => {
+  lastThreeMapsPlayed.push(mapToBePlayed);
+  spliceMapPool(mapToBePlayed);
+  if (lastThreeMapsPlayed.length > 3) {
+      pushMapPool(lastThreeMapsPlayed[0]);
+      lastThreeMapsPlayed.splice(0, 1);
+  }
+};
 
 export const addActivePug = (props: ActivePug) => {
     activePugs.push(props);
