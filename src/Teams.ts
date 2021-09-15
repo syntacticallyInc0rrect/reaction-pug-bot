@@ -31,7 +31,7 @@ import {
 import {EmbedField, Queue, queuedPlayers, removeReaction} from "./Queue";
 import {suggestedMaps} from "./Hourglass";
 import {addActivePug, guild, increasePugCount, pugCount, textChannel} from "./Bot";
-import {Maps} from "./Maps";
+import {MapVote} from "./MapVote";
 
 export let tmMsgId: string;
 
@@ -252,7 +252,7 @@ const handleReactionAdd = (reaction: MessageReaction, user: User | PartialUser) 
             if (checkIfTeamsAreFull()) {
                 reaction.message.delete().then(() => {
                     createPugChannels();
-                    Maps(BotActionOptions.initialize, reaction, user)
+                    MapVote(BotActionOptions.initialize, reaction, user);
                 });
             } else {
                 updateTeams(reaction, false);

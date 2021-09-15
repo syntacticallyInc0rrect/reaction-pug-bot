@@ -4,8 +4,8 @@ import {BotActionOptions, botToken, finishPugEmojiName, ActivePug, timeToRespond
 import {Hourglass} from "./Hourglass";
 import {Queue, queuedPlayers, queueMsgId, removeReaction} from "./Queue";
 import {Teams, tmMsgId} from "./Teams";
-import {mapMsgId, Maps, mapToBePlayed} from "./Maps";
 import {Finalize} from "./Finalize";
+import {MapVote, mapVoteMsgId} from "./MapVote";
 
 export const client: Client = new Client();
 export let guild: Guild;
@@ -14,6 +14,13 @@ export let discordId: string;
 export let pugCount: bigint = BigInt(0);
 export let queueVoiceChannelId: string;
 export let activePugs: ActivePug[] = [];
+export let mapToBePlayed: string = "";
+export const setMapToBePlayed = (newMapToBePlayed: string) => {
+    mapToBePlayed = newMapToBePlayed;
+};
+export const resetMapToBePlayed = () => {
+    mapToBePlayed = "";
+}
 
 export const addActivePug = (props: ActivePug) => {
     activePugs.push(props);
@@ -117,8 +124,8 @@ client.on('messageReactionAdd', (
             case tmMsgId:
                 Teams(BotActionOptions.reactionAdd, reaction, user);
                 break;
-            case mapMsgId:
-                Maps(BotActionOptions.reactionAdd, reaction, user);
+            case mapVoteMsgId:
+                MapVote(BotActionOptions.reactionAdd, reaction, user);
                 break;
             default:
                 if (reaction.emoji.name === finishPugEmojiName) {
@@ -144,8 +151,8 @@ client.on('messageReactionRemove', (
         case tmMsgId:
             Teams(BotActionOptions.reactionRemove, reaction, user);
             break;
-        case mapMsgId:
-            Maps(BotActionOptions.reactionRemove, reaction, user);
+        case mapVoteMsgId:
+            MapVote(BotActionOptions.reactionRemove, reaction, user);
             break;
         default:
             break;

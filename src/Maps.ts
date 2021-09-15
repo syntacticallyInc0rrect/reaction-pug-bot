@@ -12,16 +12,11 @@ import {
 } from "./Api";
 import {suggestedMaps} from "./Hourglass";
 import {EmbedField, removeReaction} from "./Queue";
-import {textChannel} from "./Bot";
+import {mapToBePlayed, setMapToBePlayed, textChannel} from "./Bot";
 import {Finalize} from "./Finalize";
 import {blueTeam, redTeam, tmMsgId} from "./Teams";
 
 export let mapMsgId: string = "";
-export let mapToBePlayed: string = "";
-
-export const resetMapToBePlayed = () => {
-    mapToBePlayed = "";
-}
 
 let alreadyVotedOnOptionOne: (User | PartialUser)[];
 let alreadyVotedOnOptionTwo: (User | PartialUser)[];
@@ -139,7 +134,7 @@ const countdownTimer = () => {
             i++
         } else {
             i = 1;
-            mapToBePlayed = getMapToBePlayed(redTeamOption.getHighestVotedOption(), blueTeamOption.getHighestVotedOption(true))
+            setMapToBePlayed(getMapToBePlayed(redTeamOption.getHighestVotedOption(), blueTeamOption.getHighestVotedOption(true)));
             Finalize(
                 BotActionOptions.initialize,
                 mapMsgId,

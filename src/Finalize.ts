@@ -22,11 +22,11 @@ import {
     queueVoiceChannelId,
     removeActivePug,
     textChannel,
-    updateActivePugMessageId
+    updateActivePugMessageId,
+    resetMapToBePlayed
 } from "./Bot";
 import {EmbedField, Queue, removeReaction} from "./Queue";
 import {Hourglass} from "./Hourglass";
-import {resetMapToBePlayed} from "./Maps";
 
 type FinalEmbedProps = {
     author: StringResolvable,
