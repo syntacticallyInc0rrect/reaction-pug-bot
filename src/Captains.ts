@@ -1,5 +1,6 @@
 import {
     ActivePug,
+    admins,
     blueTeamEmojiId,
     blueTeamEmojiIdNum,
     blueTeamEmojiName,
@@ -14,10 +15,11 @@ import {
     redTeamEmojiIdNum,
     redTeamEmojiName,
     redTeamName,
+    resetPugEmojiName,
     TeamNameOptions,
 } from "./Api";
 import {Message, MessageEmbed, MessageReaction, PartialUser, StringResolvable, User} from "discord.js";
-import {EmbedField, removeReaction} from "./Queue";
+import {EmbedField, Queue, queuedPlayers, removeReaction} from "./Queue";
 import {addActivePug, guild, increasePugCount, pugCount, textChannel} from "./Bot";
 import {MapVote} from "./MapVote";
 import {Team} from "./Teams";
@@ -71,6 +73,18 @@ type CaptainsEmbedProps = {
     redTeamField: EmbedField,
     blueTeamField: EmbedField,
     unassignedPlayersField: EmbedField
+};
+
+const resetPug = (reaction: MessageReaction) => {
+    unassignedPlayers = [];
+    wipeTeams();
+    queuedPlayers.splice(0, queuedPlayers.length);
+    voteReactions = [];
+    teamCaptains = [];
+    reaction.message.delete().then(() => {
+        Queue(BotActionOptions.initialize);
+    })
+
 };
 
 export const Captains = (
@@ -235,13 +249,11 @@ export const Captains = (
     const handleReactionAdd = (reaction: MessageReaction, user: User | PartialUser) => {
         const whichCaptain: User | PartialUser = (pickIndex % 2) ? teamCaptains[1] : teamCaptains[0];
         const playerCanMakePick: boolean = user === whichCaptain;
+        const playerIsInPug: boolean = !!(teamCaptains.find(tc => tc === user) ||
+            unassignedPlayers.find(up => up.user === user));
+        const playerIsAdmin: boolean = !!admins && !!admins.find(a => a.valueOf() === user.presence?.userID);
 
-        if (!playerCanMakePick) {
-            removeReaction(reaction, user);
-            return;
-        }
-
-        if (voteReactions.find(r => r === reaction.emoji.name)) {
+        if (playerCanMakePick && voteReactions.find(r => r === reaction.emoji.name)) {
             const player: CaptainPickPlayer | undefined = unassignedPlayers.find(
                 up => up.reaction === reaction.emoji.name
             );
@@ -268,6 +280,8 @@ export const Captains = (
             } else {
                 removeReaction(reaction, user);
             }
+        } else if ((playerIsInPug || playerIsAdmin) && reaction.emoji.name === resetPugEmojiName) {
+            resetPug(reaction);
         } else {
             removeReaction(reaction, user);
         }
