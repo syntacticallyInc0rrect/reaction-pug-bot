@@ -129,11 +129,9 @@ export const Captains = (
                 `${getPlayerName(teamCaptains[0])}, your pick`;
 
         const redTeamEmoji: StringResolvable = `${redTeamEmojiId !== "" ? redTeamEmojiId : redTeamEmojiName}`;
-
         const blueTeamEmoji: StringResolvable = `${blueTeamEmojiId !== "" ? blueTeamEmojiId : blueTeamEmojiName}`;
 
-        const author: string =
-            `Captains: ${redTeamEmoji} ${getPlayerName(teamCaptains[0])}, ${blueTeamEmoji} ${getPlayerName(teamCaptains[1])}`;
+        const author: string = `Captains: ${redTeamEmoji} ${getPlayerName(teamCaptains[0])}, ${blueTeamEmoji} ${getPlayerName(teamCaptains[1])}`;
 
         return {
             author: author,
