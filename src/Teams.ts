@@ -48,7 +48,7 @@ export class Team {
 
 }
 
-export let unassignedPlayers: (User | PartialUser)[] = [];
+let unassignedPlayers: (User | PartialUser)[] = [];
 
 const redTeamReaction: string = redTeamEmojiIdNum !== "" ? redTeamEmojiIdNum : redTeamEmojiName;
 const blueTeamReaction: string = blueTeamEmojiIdNum !== "" ? blueTeamEmojiIdNum : blueTeamEmojiName;

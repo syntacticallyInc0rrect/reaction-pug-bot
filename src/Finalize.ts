@@ -14,19 +14,21 @@ import {
     redTeamName
 } from "./Api";
 import {Message, MessageEmbed, MessageReaction, PartialUser, StringResolvable, User} from "discord.js";
-import {blueTeam, redTeam, Team, wipeTeams} from "./Teams";
 import {
     activePugs,
     guild,
     pugCount,
     queueVoiceChannelId,
     removeActivePug,
+    resetMapToBePlayed,
     textChannel,
     updateActivePugMessageId,
-    resetMapToBePlayed, updateLastThreeMapsPlayed
+    updateLastThreeMapsPlayed
 } from "./Bot";
 import {EmbedField, Queue, removeReaction} from "./Queue";
 import {Hourglass} from "./Hourglass";
+import {blueTeam, redTeam, wipeTeams} from "./Captains";
+import {Team} from "./Teams";
 
 type FinalEmbedProps = {
     author: StringResolvable,

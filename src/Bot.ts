@@ -11,9 +11,9 @@ import {
 } from "./Api";
 import {Hourglass} from "./Hourglass";
 import {Queue, queuedPlayers, queueMsgId, removeReaction} from "./Queue";
-import {Teams, tmMsgId} from "./Teams";
 import {Finalize} from "./Finalize";
 import {MapVote, mapVoteMsgId} from "./MapVote";
+import {Captains, cptMsgId} from "./Captains";
 
 export const client: Client = new Client();
 export let guild: Guild;
@@ -141,8 +141,8 @@ client.on('messageReactionAdd', (
             case queueMsgId:
                 Queue(BotActionOptions.reactionAdd, reaction, user);
                 break;
-            case tmMsgId:
-                Teams(BotActionOptions.reactionAdd, reaction, user);
+            case cptMsgId:
+                Captains(BotActionOptions.reactionAdd, reaction, user);
                 break;
             case mapVoteMsgId:
                 MapVote(BotActionOptions.reactionAdd, reaction, user);
@@ -168,8 +168,8 @@ client.on('messageReactionRemove', (
         case queueMsgId:
             Queue(BotActionOptions.reactionRemove, reaction, user);
             break;
-        case tmMsgId:
-            Teams(BotActionOptions.reactionRemove, reaction, user);
+        case cptMsgId:
+            Captains(BotActionOptions.reactionRemove, reaction, user);
             break;
         case mapVoteMsgId:
             MapVote(BotActionOptions.reactionRemove, reaction, user);

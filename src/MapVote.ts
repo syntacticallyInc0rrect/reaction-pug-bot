@@ -10,7 +10,7 @@ import {BotAction, BotActionOptions, defaultEmbedColor, mapPool, timeToBanMap} f
 import {EmbedField, removeReaction} from "./Queue";
 import {lastThreeMapsPlayed, mapToBePlayed, setMapToBePlayed, textChannel} from "./Bot";
 import {Finalize} from "./Finalize";
-import {blueTeam, redTeam, tmMsgId} from "./Teams";
+import {blueTeam, cptMsgId, redTeam} from "./Captains";
 
 export let mapVoteMsgId: string = "";
 const mapVoteEmojiList: string[] = [
@@ -161,11 +161,11 @@ const updateMapVote = (msgId: string, secondsElapsed: number) => {
 
 export const MapVote = (action: BotAction, reaction: MessageReaction, user: User | PartialUser) => {
     const handleReactionAdd = (reaction: MessageReaction, user: User | PartialUser) => {
-        if (!reaction || !user) throw Error("Tried to add a Reaction to the Map Ban Embed without a Reaction or a User.")
         const playerIsInThisPug: boolean = !!redTeam.players.find(u => u === user) ||
             !!blueTeam.players.find(u => u === user);
 
         if (!playerIsInThisPug) {
+            removeReaction(reaction, user);
             return;
         }
 
@@ -189,7 +189,7 @@ export const MapVote = (action: BotAction, reaction: MessageReaction, user: User
     switch (action) {
         case BotActionOptions.initialize:
             resetMapVoteOptions();
-            updateMapVote(tmMsgId, 0);
+            updateMapVote(cptMsgId, 0);
             break;
         case BotActionOptions.reactionAdd:
             handleReactionAdd(reaction, user);

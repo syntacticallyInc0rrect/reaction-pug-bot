@@ -14,8 +14,8 @@ import {
     resetPugEmojiName
 } from "./Api";
 import {activePugs, textChannel} from "./Bot";
-import {Teams} from "./Teams";
 import {Hourglass} from "./Hourglass";
+import {Captains} from "./Captains";
 
 export type QueuedPlayer = {
     user: User | PartialUser,
@@ -74,7 +74,7 @@ const handleReactionAdd = (reaction?: MessageReaction, user?: User | PartialUser
             if (queuedPlayers.length < matchSize) {
                 updateQueueEmbed(getQueueEmbedProps(), reaction);
             } else {
-                Teams(BotActionOptions.initialize, reaction, user, [...queuedPlayers.map(p => p.user)]);
+                Captains(BotActionOptions.initialize, reaction, user, [...queuedPlayers.map(p => p.user)]);
                 queuedPlayers = [];
             }
         } else {
