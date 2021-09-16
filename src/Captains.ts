@@ -1,19 +1,22 @@
 import {
     ActivePug,
-    blueTeamEmojiId, blueTeamEmojiIdNum,
+    blueTeamEmojiId,
+    blueTeamEmojiIdNum,
     blueTeamEmojiName,
     blueTeamName,
     BotAction,
     BotActionOptions,
     defaultEmbedColor,
     defaultEmbedThumbnailUrl,
-    defaultValueForEmptyTeam, getTeamName,
-    redTeamEmojiId, redTeamEmojiIdNum,
+    defaultValueForEmptyTeam,
+    getTeamName,
+    redTeamEmojiId,
+    redTeamEmojiIdNum,
     redTeamEmojiName,
-    redTeamName, TeamNameOptions,
+    redTeamName,
+    TeamNameOptions,
 } from "./Api";
 import {Message, MessageEmbed, MessageReaction, PartialUser, StringResolvable, User} from "discord.js";
-import {suggestedMaps} from "./Hourglass";
 import {EmbedField, removeReaction} from "./Queue";
 import {addActivePug, guild, increasePugCount, pugCount, textChannel} from "./Bot";
 import {MapVote} from "./MapVote";
@@ -23,9 +26,13 @@ export let cptMsgId: string = "";
 let pickIndex: number = 0;
 
 let reactions: string[] = [
-    "💥", "💣", "💪", "🧠", "👀", "🐵", "🦄", "🐀", "🦈", "🐌", "🌺", "🌴", "☘", "🍒", "🧀", "🌭", "🌮", "🍕", "🥣", "🦞",
-    "🧁", "🍼", "🍺", "🌍", "🗻", "⛩", "🚕", "🚲", "⚓", "🚀", "🛎", "⭐", "❄", "⚡", "⚽", "🏈", "🏓", "⛸", "🎯", "🎱", "🕹",
-    "🧸", "🎭", "🎨", "👘", "👑", "💎", "🎼", "🎻", "📷", "💲", "📭", "💼", "🏹", "🧪", "🧲", "🧬", "⚰", "🚽", "🚮", "⚔"
+    "💥", "💣", "💪", "🧠", "👀", "🐵", "🦄", "🐀", "🦈", "🐌",
+    "🌺", "🌴", "☘", "🍒", "🧀", "🌭", "🌮", "🍕", "🥣", "🦞",
+    "🧁", "🍼", "🍺", "🌍", "🗻", "⛩", "🚕", "🚲", "⚓", "🚀",
+    "🛎", "⭐", "❄", "⚡", "⚽", "🏈", "🏓", "⛸", "🎯", "🎱",
+    "🕹", "🧸", "🎭", "🎨", "👘", "👑", "💎", "🎼", "🎻", "📷",
+    "💲", "📭", "💼", "🏹", "🧪", "🧲", "🧬", "⚰", "🚽", "🚮",
+    "⚔"
 ];
 
 let voteReactions: string[] = [];
@@ -109,16 +116,24 @@ export const Captains = (
     };
 
     const getCaptainsEmbedProps = (): CaptainsEmbedProps => {
-        const title: StringResolvable = pickIndex === 0 ?
-            `${teamCaptains[0].username}, you get first pick!` :
-            (pickIndex % 2) ?
-                `${teamCaptains[1].username}, your pick` :
-                `${teamCaptains[0].username}, your pick`;
+        const getPlayerName = (user: User | PartialUser): StringResolvable => {
+            return guild.members.cache.find(gm => gm.user === user)?.nickname ?
+                guild.members.cache.find(gm => gm.user === user)!.nickname :
+                user.username;
+        };
 
-        const redTeamEmoji: StringResolvable = redTeamEmojiId !== "" ? redTeamEmojiId : redTeamEmojiName;
-        const blueTeamEmoji: StringResolvable = blueTeamEmojiId !== "" ? blueTeamEmojiId : blueTeamEmojiName;
+        const title: StringResolvable = pickIndex === 0 ?
+            `${getPlayerName(teamCaptains[0])}, you get first pick!` :
+            (pickIndex % 2) ?
+                `${getPlayerName(teamCaptains[1])}, your pick` :
+                `${getPlayerName(teamCaptains[0])}, your pick`;
+
+        const redTeamEmoji: StringResolvable = `${redTeamEmojiId !== "" ? redTeamEmojiId : redTeamEmojiName}`;
+
+        const blueTeamEmoji: StringResolvable = `${blueTeamEmojiId !== "" ? blueTeamEmojiId : blueTeamEmojiName}`;
+
         const author: string =
-            `Captains: ${redTeamEmoji} ${teamCaptains[0].username}, ${blueTeamEmoji} ${teamCaptains[1].username}`;
+            `Captains: ${redTeamEmoji} ${getPlayerName(teamCaptains[0])}, ${blueTeamEmoji} ${getPlayerName(teamCaptains[1])}`;
 
         return {
             author: author,
@@ -138,7 +153,7 @@ export const Captains = (
             unassignedPlayersField: {
                 name: "Unassigned Players",
                 value: unassignedPlayers.length > 0 ?
-                    unassignedPlayers.map(up => `${up.reaction} - ${up.user.username}`) :
+                    unassignedPlayers.map(up => `${up.reaction} - ${getPlayerName(up.user)}`) :
                     "N/A",
                 inline: false
             }
@@ -146,12 +161,12 @@ export const Captains = (
     };
 
     const buildCaptainsEmbed = (props: CaptainsEmbedProps) => {
-      return new MessageEmbed()
-          .setAuthor(props.author)
-          .setColor(props.color)
-          .setTitle(props.title)
-          .setThumbnail(props.thumbnail)
-          .addFields(props.redTeamField, props.blueTeamField, props.unassignedPlayersField)
+        return new MessageEmbed()
+            .setAuthor(props.author)
+            .setColor(props.color)
+            .setTitle(props.title)
+            .setThumbnail(props.thumbnail)
+            .addFields(props.redTeamField, props.blueTeamField, props.unassignedPlayersField)
     };
 
     const reactWithCaptainVoteOptionEmojis = (message: Message) => {
@@ -245,7 +260,8 @@ export const Captains = (
                 pickIndex++;
                 if (unassignedPlayers.length < 1) {
                     createPugChannels();
-                    reaction.message.delete().then(() => {});
+                    reaction.message.delete().then(() => {
+                    });
                     MapVote(BotActionOptions.initialize, reaction, user);
                     pickIndex = 0;
                 } else {

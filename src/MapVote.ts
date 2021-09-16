@@ -1,11 +1,4 @@
-import {
-    Message,
-    MessageEmbed,
-    MessageReaction,
-    PartialUser,
-    StringResolvable,
-    User
-} from "discord.js";
+import {Message, MessageEmbed, MessageReaction, PartialUser, StringResolvable, User} from "discord.js";
 import {BotAction, BotActionOptions, defaultEmbedColor, mapPool, timeToBanMap} from "./Api";
 import {EmbedField, removeReaction} from "./Queue";
 import {lastThreeMapsPlayed, mapToBePlayed, setMapToBePlayed, textChannel} from "./Bot";

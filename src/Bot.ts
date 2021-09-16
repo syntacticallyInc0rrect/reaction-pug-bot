@@ -1,13 +1,13 @@
 import {Channel, Client, Guild, MessageReaction, PartialUser, TextChannel, User} from "discord.js";
 import {Alerts} from "./Alerts";
 import {
+    ActivePug,
     BotActionOptions,
     botToken,
     finishPugEmojiName,
-    ActivePug,
-    timeToRespond,
+    pushMapPool,
     spliceMapPool,
-    pushMapPool
+    timeToRespond
 } from "./Api";
 import {Hourglass} from "./Hourglass";
 import {Queue, queuedPlayers, queueMsgId, removeReaction} from "./Queue";
@@ -34,12 +34,12 @@ export const resetMapToBePlayed = () => {
 };
 
 export const updateLastThreeMapsPlayed = () => {
-  lastThreeMapsPlayed.push(mapToBePlayed);
-  spliceMapPool(mapToBePlayed);
-  if (lastThreeMapsPlayed.length > 3) {
-      pushMapPool(lastThreeMapsPlayed[0]);
-      lastThreeMapsPlayed.splice(0, 1);
-  }
+    lastThreeMapsPlayed.push(mapToBePlayed);
+    spliceMapPool(mapToBePlayed);
+    if (lastThreeMapsPlayed.length > 3) {
+        pushMapPool(lastThreeMapsPlayed[0]);
+        lastThreeMapsPlayed.splice(0, 1);
+    }
 };
 
 export const addActivePug = (props: ActivePug) => {
