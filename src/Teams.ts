@@ -74,7 +74,7 @@ type TeamsEmbedProps = {
     unassignedPlayersField: EmbedField
 };
 
-type DirectMessageEmbedProps = {
+export type DirectMessageEmbedProps = {
     color: StringResolvable,
     title: StringResolvable,
     timestamp: Date,
@@ -111,7 +111,7 @@ const getTeamsEmbedProps = (): TeamsEmbedProps => {
     };
 };
 
-const getDirectMessageEmbedProps = (): DirectMessageEmbedProps => {
+export const getDirectMessageEmbedProps = (): DirectMessageEmbedProps => {
     return {
         color: defaultEmbedColor,
         title: directMessageTitle,
@@ -135,8 +135,8 @@ const buildTeamsEmbed = (props: TeamsEmbedProps): MessageEmbed => {
 
 };
 
-const sendDirectMessageToQueuedPlayers = (props: DirectMessageEmbedProps) => {
-    unassignedPlayers.map(u => u.send(
+export const sendDirectMessageToQueuedPlayers = (players: (User | PartialUser)[], props: DirectMessageEmbedProps) => {
+    players.map(u => u.send(
         new MessageEmbed()
             .setColor(props.color)
             .setTitle(props.title)
@@ -151,7 +151,7 @@ const sendInitialTeamsEmbed = (reaction: MessageReaction, props: TeamsEmbedProps
         textChannel.send(buildTeamsEmbed(props)).then(m => {
             tmMsgId = m.id;
             m.react(redTeamReaction).then();
-            m.react(blueTeamReaction).then(() => sendDirectMessageToQueuedPlayers(getDirectMessageEmbedProps()));
+            m.react(blueTeamReaction).then(() => sendDirectMessageToQueuedPlayers(unassignedPlayers, getDirectMessageEmbedProps()));
         });
     });
 };

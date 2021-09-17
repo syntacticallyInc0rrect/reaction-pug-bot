@@ -22,7 +22,7 @@ import {Message, MessageEmbed, MessageReaction, PartialUser, StringResolvable, U
 import {EmbedField, Queue, queuedPlayers, removeReaction} from "./Queue";
 import {addActivePug, guild, increasePugCount, pugCount, textChannel} from "./Bot";
 import {MapVote} from "./MapVote";
-import {Team} from "./Teams";
+import {getDirectMessageEmbedProps, sendDirectMessageToQueuedPlayers, Team} from "./Teams";
 
 export let cptMsgId: string = "";
 let pickIndex: number = 0;
@@ -187,10 +187,15 @@ export const Captains = (
     };
 
     const sendInitialCaptainsEmbed = (reaction: MessageReaction, props: CaptainsEmbedProps) => {
+        const users: (User | PartialUser)[] = unassignedPlayers.map(up => up.user);
+        users.push(teamCaptains[0]);
+        users.push(teamCaptains[1]);
+
         reaction.message.delete().then(() => {
             textChannel.send(buildCaptainsEmbed(props)).then(m => {
                 cptMsgId = m.id;
                 reactWithCaptainVoteOptionEmojis(m);
+                sendDirectMessageToQueuedPlayers(users, getDirectMessageEmbedProps());
             })
         })
     };
