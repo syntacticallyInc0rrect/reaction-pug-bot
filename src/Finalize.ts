@@ -137,14 +137,13 @@ export const Finalize = (
 
         getMessage().delete().then(() => {
             textChannel.send(buildFinalEmbed(getFinalEmbedProps(mapToBePlayed))).then(m => {
-                m.react(finishPugEmojiName).then(() => {
-                    updateActivePugMessageId(m.id);
-                    wipeTeams();
-                    updateLastThreeMapsPlayed();
-                    resetMapToBePlayed();
-                    Queue(BotActionOptions.initialize);
-                    Hourglass();
-                });
+                updateActivePugMessageId(m.id);
+                wipeTeams();
+                updateLastThreeMapsPlayed();
+                resetMapToBePlayed();
+                Queue(BotActionOptions.initialize);
+                Hourglass();
+                setTimeout(m => m.react(finishPugEmojiName), (30 * 1000));
             });
 
         });
