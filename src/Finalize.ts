@@ -129,21 +129,24 @@ export const Finalize = (
     user?: User | PartialUser,
 ) => {
     const initializeFinalize = (msgId: string, mapToBePlayed: string) => {
+        let message: Message | undefined;
+
         const getMessage = (): Message => {
-            const message = textChannel.messages.cache.get(msgId);
+            message = textChannel.messages.cache.get(msgId);
             if (!message) throw Error("The Bot Message was not found. This is a problem.");
             return message;
         }
 
         getMessage().delete().then(() => {
             textChannel.send(buildFinalEmbed(getFinalEmbedProps(mapToBePlayed))).then(m => {
+                message = m;
                 updateActivePugMessageId(m.id);
                 wipeTeams();
                 updateLastThreeMapsPlayed();
                 resetMapToBePlayed();
                 Queue(BotActionOptions.initialize);
                 Hourglass();
-                setTimeout(m => m.react(finishPugEmojiName), (30 * 1000));
+                setTimeout(() => message && message.react(finishPugEmojiName), (30 * 1000));
             });
 
         });
