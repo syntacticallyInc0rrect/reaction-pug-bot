@@ -21,8 +21,8 @@ import {
 import {Message, MessageEmbed, MessageReaction, PartialUser, StringResolvable, User} from "discord.js";
 import {EmbedField, Queue, queuedPlayers, removeReaction} from "./Queue";
 import {addActivePug, guild, increasePugCount, pugCount, textChannel} from "./Bot";
-import {MapVote} from "./MapVote";
 import {getDirectMessageEmbedProps, sendDirectMessageToQueuedPlayers, Team} from "./Teams";
+import {Maps} from "./Maps";
 
 export let cptMsgId: string = "";
 let pickIndex: number = 0;
@@ -277,7 +277,7 @@ export const Captains = (
                     createPugChannels();
                     reaction.message.delete().then(() => {
                     });
-                    MapVote(BotActionOptions.initialize, reaction, user);
+                    Maps(BotActionOptions.initialize, reaction, user);
                     pickIndex = 0;
                 } else {
                     updateCaptainsEmbed(reaction);

@@ -14,7 +14,7 @@ import {suggestedMaps} from "./Hourglass";
 import {EmbedField, removeReaction} from "./Queue";
 import {mapToBePlayed, setMapToBePlayed, textChannel} from "./Bot";
 import {Finalize} from "./Finalize";
-import {blueTeam, redTeam, tmMsgId} from "./Teams";
+import {blueTeam, cptMsgId, redTeam} from "./Captains";
 
 export let mapMsgId: string = "";
 
@@ -215,6 +215,7 @@ export const Maps = (action: BotAction, reaction: MessageReaction, user: User | 
             !!blueTeam.players.find(u => u === user);
 
         if (!playerIsInThisPug) {
+            removeReaction(reaction, user);
             return;
         }
 
@@ -245,6 +246,7 @@ export const Maps = (action: BotAction, reaction: MessageReaction, user: User | 
                     !alreadyVotedOnOptionOne.find(u => u === user) &&
                     !alreadyVotedOnOptionThree.find(u => u === user)
                 ) {
+                    console.log("didn't vote on one or three");
                     if (redTeam.players.find(u => u === user)) {
                         redTeamOption.optionTwo.count++;
                         alreadyVotedOnOptionTwo.push(user);
@@ -338,7 +340,7 @@ export const Maps = (action: BotAction, reaction: MessageReaction, user: User | 
     switch (action) {
         case BotActionOptions.initialize:
             resetMapBanVoteOptions();
-            updateMaps(tmMsgId, 0);
+            updateMaps(cptMsgId, 0);
             break;
         case BotActionOptions.reactionAdd:
             handleReactionAdd(reaction, user);

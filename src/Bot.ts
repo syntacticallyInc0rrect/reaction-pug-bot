@@ -12,8 +12,8 @@ import {
 import {Hourglass} from "./Hourglass";
 import {Queue, queuedPlayers, queueMsgId, removeReaction} from "./Queue";
 import {Finalize} from "./Finalize";
-import {MapVote, mapVoteMsgId} from "./MapVote";
 import {Captains, cptMsgId} from "./Captains";
+import {mapMsgId, Maps} from "./Maps";
 
 export const client: Client = new Client();
 export let guild: Guild;
@@ -144,8 +144,8 @@ client.on('messageReactionAdd', (
             case cptMsgId:
                 Captains(BotActionOptions.reactionAdd, reaction, user);
                 break;
-            case mapVoteMsgId:
-                MapVote(BotActionOptions.reactionAdd, reaction, user);
+            case mapMsgId:
+                Maps(BotActionOptions.reactionAdd, reaction, user);
                 break;
             default:
                 if (reaction.emoji.name === finishPugEmojiName) {
@@ -171,8 +171,8 @@ client.on('messageReactionRemove', (
         case cptMsgId:
             Captains(BotActionOptions.reactionRemove, reaction, user);
             break;
-        case mapVoteMsgId:
-            MapVote(BotActionOptions.reactionRemove, reaction, user);
+        case mapMsgId:
+            Maps(BotActionOptions.reactionRemove, reaction, user);
             break;
         default:
             break;

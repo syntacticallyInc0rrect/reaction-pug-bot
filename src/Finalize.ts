@@ -142,7 +142,7 @@ export const Finalize = (
                 message = m;
                 updateActivePugMessageId(m.id);
                 wipeTeams();
-                updateLastThreeMapsPlayed();
+                // updateLastThreeMapsPlayed();
                 resetMapToBePlayed();
                 Queue(BotActionOptions.initialize);
                 Hourglass();
