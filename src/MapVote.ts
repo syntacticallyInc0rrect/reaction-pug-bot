@@ -161,11 +161,11 @@ const updateMapVote = (msgId: string, secondsElapsed: number) => {
 
 export const MapVote = (action: BotAction, reaction: MessageReaction, user: User | PartialUser) => {
     const handleReactionAdd = (reaction: MessageReaction, user: User | PartialUser) => {
-        if (!reaction || !user) throw Error("Tried to add a Reaction to the Map Ban Embed without a Reaction or a User.")
         const playerIsInThisPug: boolean = !!redTeam.players.find(u => u === user) ||
             !!blueTeam.players.find(u => u === user);
 
         if (!playerIsInThisPug) {
+            removeReaction(reaction, user);
             return;
         }
 
@@ -179,10 +179,11 @@ export const MapVote = (action: BotAction, reaction: MessageReaction, user: User
     };
 
     const handleReactionRemove = (reaction: MessageReaction, user: User | PartialUser) => {
-        if (mapVoteObject.voteOptions.find(e => e.emojiName === reaction.emoji.name)) {
+        const playerIsInThisPug: boolean = !!redTeam.players.find(u => u === user) ||
+            !!blueTeam.players.find(u => u === user);
+
+        if (mapVoteObject.voteOptions.find(e => e.emojiName === reaction.emoji.name) && playerIsInThisPug) {
             mapVoteObject.voteOptions.find(e => e.emojiName === reaction.emoji.name)!.count -= 1;
-        } else {
-            removeReaction(reaction, user);
         }
     };
 
