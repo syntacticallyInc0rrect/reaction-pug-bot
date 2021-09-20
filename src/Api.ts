@@ -124,5 +124,5 @@ export const optionThreeEmojiId: string = process.env.OPTION_THREE_EMOJI_ID ? pr
 export const optionThreeEmojiIdNum: string = process.env.OPTION_THREE_EMOJI_ID_NUM ? process.env.OPTION_THREE_EMOJI_ID_NUM : "";
 
 export const timeToBanMap: number = process.env.TIME_TO_BAN_MAP ? parseInt(process.env.TIME_TO_BAN_MAP) : 30;
-export const timeToAlert: Date = process.env.TIME_TO_ALERT ? new Date(parseInt(process.env.TIME_TO_ALERT)) : new Date(720000);
-export const timeToRespond: number = process.env.TIME_TO_RESPOND ? parseInt(process.env.TIME_TO_RESPOND) : 90000;
+export const timeToAlert: Date = process.env.TIME_TO_ALERT ? new Date(parseInt(process.env.TIME_TO_ALERT)) : new Date(7200000);
+export const timeToRespond: number = process.env.TIME_TO_RESPOND ? parseInt(process.env.TIME_TO_RESPOND) : 900000;
